@@ -30,6 +30,8 @@
 
 <script>
 const socket = io();
+
+let hasJoined = false;
 let myName = localStorage.getItem("miniName") || "";
 let onlineUsers = [];
 let currentCall = null;
@@ -255,4 +257,38 @@ socket.on('call-rejected',()=>{alert('La llamada ha sido rechazada.');terminarLl
 hangupBtn.onclick=()=>terminarLlamada(true);
 function terminarLlamada(avisar=true){if(avisar&&currentCall)socket.emit('call-ended',{to:currentCall.targetId});if(peerConnection){peerConnection.close();peerConnection=null;}if(localStream){localStream.getTracks().forEach(t=>t.stop());localStream=null;}remoteStream=null;localVideo.srcObject=null;remoteVideo.srcObject=null;currentCall=null;pendingCandidates=[];callScreen.classList.remove('active');incomingCall.classList.remove('active');callStatus.textContent='Conectando...';muteBtn.textContent='🎤';cameraBtn.textContent='📷';muteBtn.classList.remove('off');cameraBtn.classList.remove('off');}
 muteBtn.onclick=()=>{if(!localStream)return;localStream.getAudioTracks().forEach(t=>t.enabled=!t.enabled);const off=localStream.getAudioTracks()[0]&&!localStream.getAudioTracks()[0].enabled;muteBtn.textContent=off?'🔇':'🎤';muteBtn.classList.toggle('off',off);};
-cameraBtn.onclick=()=>{if(!localStream)return;localStream.getVideoTracks().forEach(t=>t.enabled=!t.enabled);const off=localStream.getVideoTrack
+cameraBtn.onclick=()=>{if(!localStream)return;localStream.getVideoTracks().forEach(t=>t.enabled=!t.enabled);const off=localStream.getVideoTracks()[0]&&!localStream.getVideoTracks()[0].enabled;cameraBtn.textContent=off?'🚫':'📷';cameraBtn.classList.toggle('off',off);};
+function unicoOtro(){const x=onlineUsers.filter(u=>u.id!==socket.id);if(x.length!==1){alert('Selecciona a la persona desde la lista de usuarios.');return null;}return x[0];}
+document.getElementById('quickVoiceCall').onclick=()=>{const u=unicoOtro();if(u)iniciarLlamada(u.id,false);};
+document.getElementById('quickVideoCall').onclick=()=>{const u=unicoOtro();if(u)iniciarLlamada(u.id,true);};
+
+socket.on('connect',()=>{
+    status.textContent='En línea';
+    hasJoined=false;
+
+    if(myName){
+        nameInput.value=myName;
+        login.style.display='none';
+        joinServer();
+    }else{
+        login.style.display='flex';
+    }
+});
+
+socket.on('disconnect',()=>{
+    status.textContent='Desconectado';
+    hasJoined=false;
+    terminarLlamada(false);
+});
+
+if(myName){
+    nameInput.value=myName;
+    login.style.display='none';
+} else {
+    login.style.display='flex';
+}
+
+renderPosts();
+</script>
+</body>
+</html>
