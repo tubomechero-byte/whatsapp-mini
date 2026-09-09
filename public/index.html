@@ -130,30 +130,24 @@ function renderUsers(){
             <div class="callButtons">
                 <button
                     class="voiceCallBtn"
-                    title="${online?'Llamar':'Usuario desconectado'}"
-                    ${online?'':'disabled'}>
+                    title="${online?'Llamar':'Llamar cuando vuelva a conectarse'}">
                     📞
                 </button>
 
                 <button
                     class="videoCallBtn"
-                    title="${online?'Videollamada':'Usuario desconectado'}"
-                    ${online?'':'disabled'}>
+                    title="${online?'Videollamada':'Videollamada cuando vuelva a conectarse'}">
                     📹
                 </button>
             </div>
         `;
 
         div.querySelector('.voiceCallBtn').onclick=()=>{
-            if(!u.online){ alert('Ese usuario está desconectado.'); return; }
-            const target=onlineUsers.find(x=>x.name===u.name && x.online);
-            if(target && target.id) iniciarLlamada(target.id,false);
+            llamarUsuario(u.name, false);
         };
 
         div.querySelector('.videoCallBtn').onclick=()=>{
-            if(!u.online){ alert('Ese usuario está desconectado.'); return; }
-            const target=onlineUsers.find(x=>x.name===u.name && x.online);
-            if(target && target.id) iniciarLlamada(target.id,true);
+            llamarUsuario(u.name, true);
         };
 
         people.appendChild(div);
@@ -247,7 +241,52 @@ function getUserById(id){return onlineUsers.find(u=>u.id===id);}
 function createPeerConnection(targetId){const pc=new RTCPeerConnection(rtcConfig);pc.onicecandidate=e=>{if(e.candidate)socket.emit('call-signal',{to:targetId,type:'candidate',candidate:e.candidate});};pc.ontrack=e=>{if(!remoteStream)remoteStream=new MediaStream();e.streams[0].getTracks().forEach(t=>{if(!remoteStream.getTracks().some(x=>x.id===t.id))remoteStream.addTrack(t);});remoteVideo.srcObject=remoteStream;};pc.onconnectionstatechange=()=>{if(pc.connectionState==='connected')callStatus.textContent='Llamada conectada';if(['disconnected','failed','closed'].includes(pc.connectionState))terminarLlamada(false);};return pc;}
 function mostrarLlamada(){callScreen.classList.add('active');}
 async function obtenerMedia(video){try{localStream=await navigator.mediaDevices.getUserMedia({audio:true,video});localVideo.srcObject=localStream;document.getElementById('remoteBox').style.display=video?'block':'none';cameraBtn.style.display=video?'block':'none';return true;}catch(e){console.error(e);alert('No se pudo acceder al micrófono o la cámara. Revisa los permisos del navegador.');return false;}}
+function llamarUsuario(nombre, video){
+    const target = onlineUsers.find(
+        u => u.name === nombre
+    );
+
+    if(target && target.online && target.id){
+        iniciarLlamada(target.id, video);
+        return;
+    }
+
+    socket.emit('call-offline', {
+        targetName: nombre,
+        video: video
+    });
+}
+
+socket.on('call-pending-saved', data => {
+    alert(
+        data.video
+        ? `Videollamada guardada. ${data.targetName} recibirá una notificación cuando esté disponible.`
+        : `Llamada guardada. ${data.targetName} recibirá una notificación cuando esté disponible.`
+    );
+});
+
+socket.on('call-pending-error', message => {
+    alert(message || 'No se pudo guardar la llamada.');
+});
+
 async function iniciarLlamada(targetId,video){if(currentCall||targetId===socket.id)return;const user=getUserById(targetId);if(!user){alert('Ese usuario ya no está conectado.');return;}currentCall={targetId,video,caller:true};remoteLabel.textContent=user.name;callStatus.textContent=`Llamando a ${user.name}...`;mostrarLlamada();if(!await obtenerMedia(video)){terminarLlamada(false);return;}peerConnection=createPeerConnection(targetId);localStream.getTracks().forEach(t=>peerConnection.addTrack(t,localStream));const offer=await peerConnection.createOffer();await peerConnection.setLocalDescription(offer);socket.emit('call-user',{to:targetId,fromName:myName,video,offer});}
+
+socket.on('incoming-call-pending', data => {
+    pendingIncomingCall = data;
+
+    incomingName.textContent = data.fromName || 'Usuario';
+    incomingType.textContent =
+        data.video
+        ? 'Tienes una videollamada pendiente'
+        : 'Tienes una llamada pendiente';
+
+    acceptCall.textContent =
+        data.video
+        ? '✅ Aceptar vídeo'
+        : '✅ Aceptar';
+
+    incomingCall.classList.add('active');
+});
 
 socket.on('incoming-call',data=>{if(currentCall){socket.emit('call-rejected',{to:data.from});return;}pendingIncomingCall=data;incomingName.textContent=data.fromName;incomingType.textContent=data.video?'Te está haciendo una videollamada':'Te está haciendo una llamada de voz';acceptCall.textContent=data.video?'✅ Aceptar vídeo':'✅ Aceptar';incomingCall.classList.add('active');});
 acceptCall.onclick=async()=>{if(!pendingIncomingCall)return;const data=pendingIncomingCall;pendingIncomingCall=null;incomingCall.classList.remove('active');currentCall={targetId:data.from,video:data.video,caller:false};remoteLabel.textContent=data.fromName;callStatus.textContent=`Conectando con ${data.fromName}...`;mostrarLlamada();if(!await obtenerMedia(data.video)){socket.emit('call-rejected',{to:data.from});terminarLlamada(false);return;}peerConnection=createPeerConnection(data.from);localStream.getTracks().forEach(t=>peerConnection.addTrack(t,localStream));await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));for(const c of pendingCandidates){try{await peerConnection.addIceCandidate(c);}catch(e){console.error(e);}}pendingCandidates=[];const answer=await peerConnection.createAnswer();await peerConnection.setLocalDescription(answer);socket.emit('call-signal',{to:data.from,type:'answer',answer});};
@@ -255,40 +294,4 @@ rejectCall.onclick=()=>{if(pendingIncomingCall)socket.emit('call-rejected',{to:p
 socket.on('call-signal',async data=>{if(!currentCall)return;if(data.type==='answer'&&peerConnection){await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));for(const c of pendingCandidates){try{await peerConnection.addIceCandidate(c);}catch(e){console.error(e);}}pendingCandidates=[];}if(data.type==='candidate'){const c=new RTCIceCandidate(data.candidate);if(peerConnection&&peerConnection.remoteDescription){try{await peerConnection.addIceCandidate(c);}catch(e){console.error(e);}}else pendingCandidates.push(c);}});
 socket.on('call-rejected',()=>{alert('La llamada ha sido rechazada.');terminarLlamada(false);});socket.on('call-ended',()=>terminarLlamada(false));
 hangupBtn.onclick=()=>terminarLlamada(true);
-function terminarLlamada(avisar=true){if(avisar&&currentCall)socket.emit('call-ended',{to:currentCall.targetId});if(peerConnection){peerConnection.close();peerConnection=null;}if(localStream){localStream.getTracks().forEach(t=>t.stop());localStream=null;}remoteStream=null;localVideo.srcObject=null;remoteVideo.srcObject=null;currentCall=null;pendingCandidates=[];callScreen.classList.remove('active');incomingCall.classList.remove('active');callStatus.textContent='Conectando...';muteBtn.textContent='🎤';cameraBtn.textContent='📷';muteBtn.classList.remove('off');cameraBtn.classList.remove('off');}
-muteBtn.onclick=()=>{if(!localStream)return;localStream.getAudioTracks().forEach(t=>t.enabled=!t.enabled);const off=localStream.getAudioTracks()[0]&&!localStream.getAudioTracks()[0].enabled;muteBtn.textContent=off?'🔇':'🎤';muteBtn.classList.toggle('off',off);};
-cameraBtn.onclick=()=>{if(!localStream)return;localStream.getVideoTracks().forEach(t=>t.enabled=!t.enabled);const off=localStream.getVideoTracks()[0]&&!localStream.getVideoTracks()[0].enabled;cameraBtn.textContent=off?'🚫':'📷';cameraBtn.classList.toggle('off',off);};
-function unicoOtro(){const x=onlineUsers.filter(u=>u.id!==socket.id);if(x.length!==1){alert('Selecciona a la persona desde la lista de usuarios.');return null;}return x[0];}
-document.getElementById('quickVoiceCall').onclick=()=>{const u=unicoOtro();if(u)iniciarLlamada(u.id,false);};
-document.getElementById('quickVideoCall').onclick=()=>{const u=unicoOtro();if(u)iniciarLlamada(u.id,true);};
-
-socket.on('connect',()=>{
-    status.textContent='En línea';
-    hasJoined=false;
-
-    if(myName){
-        nameInput.value=myName;
-        login.style.display='none';
-        joinServer();
-    }else{
-        login.style.display='flex';
-    }
-});
-
-socket.on('disconnect',()=>{
-    status.textContent='Desconectado';
-    hasJoined=false;
-    terminarLlamada(false);
-});
-
-if(myName){
-    nameInput.value=myName;
-    login.style.display='none';
-} else {
-    login.style.display='flex';
-}
-
-renderPosts();
-</script>
-</body>
-</html>
+function terminarLlamada(avisar=true){if(avisar&&currentCall)socket.emit('call-ended',{to:currentCall.targetId});if(peerConnection){peerConnection.close();peerConnection=null;}if(localStream){localStream.getTracks().forEach(t=>t.stop());localStream=null;}remoteSt
