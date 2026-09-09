@@ -43,24 +43,46 @@ const rtcConfig = { iceServers:[{urls:"stun:stun.l.google.com:19302"},{urls:"stu
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));}
 function mostrarPantalla(p){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));document.getElementById(p).classList.add('active');document.querySelectorAll('.menu button').forEach(x=>x.classList.remove('active'));document.getElementById(p==='whatsapp'?'whatsappBtn':'socialBtn').classList.add('active');}
 
-const login=document.getElementById('login'),nameInput=document.getElementById('name'),enter=document.getElementById('enter');
+const login=document.getElementById('login'),
+      nameInput=document.getElementById('name'),
+      enter=document.getElementById('enter');
+
+function getSavedName(){
+    try{
+        const stored = localStorage.getItem('miniName');
+        if(stored && stored.trim()) return stored.trim().slice(0,24);
+    }catch(e){}
+
+    const match = document.cookie.match(/(?:^|; )miniName=([^;]*)/);
+    return match ? decodeURIComponent(match[1]).slice(0,24) : '';
+}
+
+function saveName(name){
+    try{
+        localStorage.setItem('miniName', name);
+    }catch(e){}
+
+    document.cookie =
+        'miniName=' + encodeURIComponent(name) +
+        '; max-age=31536000; path=/; SameSite=Lax';
+}
+
+myName = getSavedName();
 const messages=document.getElementById('messages'),form=document.getElementById('form'),input=document.getElementById('input'),people=document.getElementById('people'),status=document.getElementById('status'),searchPeople=document.getElementById('searchPeople');
 
 function time(iso){return new Date(iso).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}
 function addMessage(m){const div=document.createElement('div');div.className='msg'+(m.user===myName?' me':'');div.dataset.messageId=m.id;const borrar=m.user===myName?`<button onclick="borrarMensaje('${m.id}')" style="float:right;border:0;background:none;cursor:pointer;margin-left:8px;font-size:14px" title="Borrar mensaje">🗑️</button>`:'';div.innerHTML=`${borrar}<div class="user">${escapeHtml(m.user)}</div><div>${escapeHtml(m.text)}</div><div class="time">${time(m.time)}</div>`;messages.appendChild(div);messages.scrollTop=messages.scrollHeight;}
-
-let hasJoined=false;
 
 function enterChat(){
     const n=nameInput.value.trim();
     if(!n) return;
 
     myName=n.slice(0,24);
-    localStorage.setItem('miniName',myName);
+    saveName(myName);
 
     login.style.display='none';
 
-    if(socket.connected && !hasJoined){
+    if(socket.connected){
         hasJoined=true;
         socket.emit('join',myName);
     }
@@ -70,15 +92,7 @@ function enterChat(){
 
 enter.onclick=enterChat;
 
-nameInput.addEventListener('keydown',e=>{
-    if(e.key==='Enter') enterChat();
-});
-
-// Recuperar el nombre automáticamente
-if(myName){
-    nameInput.value=myName;
-    login.style.display='none';
-}
+nameInput.addEventListener('keydown',e=>{if(e.key==='Enter')enterChat();});
 
 socket.on('history',list=>{messages.innerHTML='';list.forEach(addMessage);});
 socket.on('chat message',addMessage);
@@ -189,14 +203,24 @@ function unicoOtro(){const x=onlineUsers.filter(u=>u.id!==socket.id);if(x.length
 document.getElementById('quickVoiceCall').onclick=()=>{const u=unicoOtro();if(u)iniciarLlamada(u.id,false);};
 document.getElementById('quickVideoCall').onclick=()=>{const u=unicoOtro();if(u)iniciarLlamada(u.id,true);};
 
-socket.on('connect',()=>{
-    status.textContent='En línea';
+let hasJoined=false;
 
-    if(myName && !hasJoined){
+function autoLogin(){
+    if(!myName) return;
+
+    nameInput.value=myName;
+    login.style.display='none';
+
+    if(socket.connected && !hasJoined){
         hasJoined=true;
         socket.emit('join',myName);
         input.focus();
     }
+}
+
+socket.on('connect',()=>{
+    status.textContent='En línea';
+    autoLogin();
 });
 
 socket.on('disconnect',()=>{
@@ -204,6 +228,8 @@ socket.on('disconnect',()=>{
     hasJoined=false;
     terminarLlamada(false);
 });
+
+autoLogin();
 
 renderPosts();
 </script>
