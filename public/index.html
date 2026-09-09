@@ -21,7 +21,7 @@
 <nav class="menu"><button id="whatsappBtn" class="active" onclick="mostrarPantalla('whatsapp')">💬</button><button id="socialBtn" onclick="mostrarPantalla('social')">📸</button></nav>
 
 <section class="screen active whatsapp" id="whatsapp">
-<aside><div class="sideHead"><span>Chats</span>🟢</div><input class="search" id="searchPeople" placeholder="Buscar"><div class="people" id="people">Conectando...</div></aside>
+<aside><div class="sideHead"><span>Chats</span><button id="notificationBtn" title="Activar notificaciones" style="border:0;background:none;cursor:pointer;font-size:20px">🔔</button></div><input class="search" id="searchPeople" placeholder="Buscar"><div class="people" id="people">Conectando...</div></aside>
 <section class="chat"><div class="top"><div class="topTitle">🌐 Chat general<div class="status" id="status">Conecta para empezar</div></div><div class="callTopButtons"><button id="quickVoiceCall" title="Llamada de voz">📞</button><button id="quickVideoCall" title="Videollamada">📹</button></div></div><div class="messages" id="messages"></div><form class="form" id="form"><input id="input" autocomplete="off" placeholder="Escribe un mensaje..."><button>➤</button></form></section>
 </section>
 
@@ -64,6 +64,71 @@ searchPeople.addEventListener('input',renderUsers);
 
 socket.on('users',list=>{onlineUsers=Array.isArray(list)?list:[];renderUsers();status.textContent=`${onlineUsers.length} conectado${onlineUsers.length===1?'':'s'}`;});
 form.addEventListener('submit',e=>{e.preventDefault();const text=input.value.trim();if(!text)return;socket.emit('chat message',text);input.value='';});
+
+
+// =========================
+// NOTIFICACIONES PUSH
+// =========================
+const notificationBtn = document.getElementById('notificationBtn');
+
+async function activarNotificaciones(){
+    try{
+        if(!('serviceWorker' in navigator) || !('PushManager' in window)){
+            alert('Este navegador no permite notificaciones push.');
+            return;
+        }
+
+        if(!window.isSecureContext){
+            alert('Las notificaciones necesitan HTTPS. En localhost funcionan para las pruebas.');
+            return;
+        }
+
+        const permission = await Notification.requestPermission();
+        if(permission !== 'granted'){
+            alert('Has bloqueado las notificaciones. Puedes activarlas desde los permisos del navegador.');
+            return;
+        }
+
+        const registration = await navigator.serviceWorker.register('/sw.js');
+        await navigator.serviceWorker.ready;
+
+        const keyResponse = await fetch('/api/vapid-public-key');
+        const { publicKey } = await keyResponse.json();
+
+        let subscription = await registration.pushManager.getSubscription();
+
+        if(!subscription){
+            subscription = await registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array(publicKey)
+            });
+        }
+
+        socket.emit('subscribe-push', {
+            name: myName,
+            subscription: subscription.toJSON()
+        });
+
+        notificationBtn.textContent = '🔔';
+        notificationBtn.title = 'Notificaciones activadas';
+        alert('Notificaciones activadas.');
+
+    }catch(error){
+        console.error('Error activando notificaciones:', error);
+        alert('No se pudieron activar las notificaciones.');
+    }
+}
+
+function urlBase64ToUint8Array(base64String){
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = atob(base64);
+    return Uint8Array.from([...rawData].map(char => char.charCodeAt(0)));
+}
+
+if(notificationBtn){
+    notificationBtn.addEventListener('click', activarNotificaciones);
+}
 
 // FotoApp
 const feed=document.getElementById('feed'),postError=document.getElementById('postError');let publicaciones=[];
