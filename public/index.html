@@ -46,6 +46,24 @@ function mostrarPantalla(p){document.querySelectorAll('.screen').forEach(x=>x.cl
 const login=document.getElementById('login'),nameInput=document.getElementById('name'),enter=document.getElementById('enter');
 const messages=document.getElementById('messages'),form=document.getElementById('form'),input=document.getElementById('input'),people=document.getElementById('people'),status=document.getElementById('status'),searchPeople=document.getElementById('searchPeople');
 
+function loadSavedName(){
+    try{
+        return (localStorage.getItem('miniName') || '').trim().slice(0,24);
+    }catch(error){
+        return '';
+    }
+}
+
+function saveSavedName(name){
+    try{
+        localStorage.setItem('miniName', name);
+    }catch(error){
+        console.error('No se pudo guardar el nombre:', error);
+    }
+}
+
+myName = loadSavedName();
+
 function time(iso){return new Date(iso).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}
 function addMessage(m){const div=document.createElement('div');div.className='msg'+(m.user===myName?' me':'');div.dataset.messageId=m.id;const borrar=m.user===myName?`<button onclick="borrarMensaje('${m.id}')" style="float:right;border:0;background:none;cursor:pointer;margin-left:8px;font-size:14px" title="Borrar mensaje">🗑️</button>`:'';div.innerHTML=`${borrar}<div class="user">${escapeHtml(m.user)}</div><div>${escapeHtml(m.text)}</div><div class="time">${time(m.time)}</div>`;messages.appendChild(div);messages.scrollTop=messages.scrollHeight;}
 
@@ -237,6 +255,4 @@ socket.on('call-rejected',()=>{alert('La llamada ha sido rechazada.');terminarLl
 hangupBtn.onclick=()=>terminarLlamada(true);
 function terminarLlamada(avisar=true){if(avisar&&currentCall)socket.emit('call-ended',{to:currentCall.targetId});if(peerConnection){peerConnection.close();peerConnection=null;}if(localStream){localStream.getTracks().forEach(t=>t.stop());localStream=null;}remoteStream=null;localVideo.srcObject=null;remoteVideo.srcObject=null;currentCall=null;pendingCandidates=[];callScreen.classList.remove('active');incomingCall.classList.remove('active');callStatus.textContent='Conectando...';muteBtn.textContent='🎤';cameraBtn.textContent='📷';muteBtn.classList.remove('off');cameraBtn.classList.remove('off');}
 muteBtn.onclick=()=>{if(!localStream)return;localStream.getAudioTracks().forEach(t=>t.enabled=!t.enabled);const off=localStream.getAudioTracks()[0]&&!localStream.getAudioTracks()[0].enabled;muteBtn.textContent=off?'🔇':'🎤';muteBtn.classList.toggle('off',off);};
-cameraBtn.onclick=()=>{if(!localStream)return;localStream.getVideoTracks().forEach(t=>t.enabled=!t.enabled);const off=localStream.getVideoTracks()[0]&&!localStream.getVideoTracks()[0].enabled;cameraBtn.textContent=off?'🚫':'📷';cameraBtn.classList.toggle('off',off);};
-function unicoOtro(){const x=onlineUsers.filter(u=>u.id!==socket.id);if(x.length!==1){alert('Selecciona a la persona desde la lista de usuarios.');return null;}return x[0];}
-document.getElementById('quickVoiceCall').onclick=()=>{const u=
+cameraBtn.onclick=()=>{if(!localStream)return;localStream.getVideoTracks().forEach(t=>t.enabled=!t.enabled);const off=localStream.getVideoTrack
