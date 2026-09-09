@@ -5,7 +5,6 @@ const fs = require("fs");
 const path = require("path");
 
 const app = express();
-
 const server = http.createServer(app);
 
 const io = new Server(server, {
@@ -36,7 +35,7 @@ function loadJSON(file) {
   }
 }
 
-function saveJSON(file, data, limit = 1000) {
+function saveJSON(file, data, limit) {
   fs.writeFileSync(
     file,
     JSON.stringify(data.slice(-limit), null, 2),
@@ -44,40 +43,20 @@ function saveJSON(file, data, limit = 1000) {
   );
 }
 
-function loadMessages() {
-  return loadJSON(MESSAGES_FILE);
-}
-
-function saveMessages(messages) {
-  saveJSON(MESSAGES_FILE, messages, 1000);
-}
-
-function loadPosts() {
-  return loadJSON(POSTS_FILE);
-}
-
-function savePosts(posts) {
-  saveJSON(POSTS_FILE, posts, 200);
-}
+const users = new Map();
 
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/data", express.static(DATA_DIR));
-
-const users = new Map();
+/* =========================
+   SOCKET.IO
+========================= */
 
 io.on("connection", (socket) => {
 
-  // Enviar historial del chat
-  socket.emit("history", loadMessages());
+  socket.emit("history", loadJSON(MESSAGES_FILE));
+  socket.emit("posts history", loadJSON(POSTS_FILE));
 
-  // Enviar publicaciones existentes
-  socket.emit("posts history", loadPosts());
-
-
-  // =========================
-  // CHAT
-  // =========================
+  /* ===== CHAT ===== */
 
   socket.on("join", (name) => {
 
@@ -89,16 +68,8 @@ io.on("connection", (socket) => {
 
     users.set(socket.id, name);
 
-    io.emit(
-      "users",
-      [...users.values()]
-    );
-
-    io.emit(
-      "system",
-      `${name} se ha conectado`
-    );
-
+    io.emit("users", [...users.values()]);
+    io.emit("system", `${name} se ha conectado`);
   });
 
 
@@ -113,59 +84,54 @@ io.on("connection", (socket) => {
     if (!name || !text) return;
 
     const msg = {
-
-      id:
-        Date.now() +
-        Math.random(),
-
+      id: Date.now() + Math.random(),
       user: name,
-
-      text,
-
-      time:
-        new Date().toISOString()
-
+      text: text,
+      time: new Date().toISOString()
     };
 
-    const messages =
-      loadMessages();
+    const messages = loadJSON(MESSAGES_FILE);
 
     messages.push(msg);
 
-    saveMessages(messages);
-
-    io.emit(
-      "chat message",
-      msg
+    saveJSON(
+      MESSAGES_FILE,
+      messages,
+      1000
     );
 
+    io.emit("chat message", msg);
   });
 
 
-  // =========================
-  // PUBLICACIONES
-  // =========================
+  /* ===== PUBLICACIONES ===== */
 
   socket.on("new post", (post) => {
 
-    if (!post) return;
+    const nombre =
+      users.get(socket.id) || "Usuario";
 
-    if (
-      typeof post.archivo !== "string" ||
-      post.archivo.length > 25 * 1024 * 1024
-    ) {
+
+    if (!post || typeof post.archivo !== "string") {
+      return;
+    }
+
+
+    if (post.archivo.length > 25 * 1024 * 1024) {
+
       socket.emit(
         "post error",
         "El archivo es demasiado grande."
       );
+
       return;
     }
+
 
     const nuevoPost = {
 
       id:
-        Date.now() +
-        Math.random(),
+        Date.now() + Math.random(),
 
       tipo:
         post.tipo === "video"
@@ -177,45 +143,46 @@ io.on("connection", (socket) => {
 
       descripcion:
         String(post.descripcion || "")
+          .trim()
           .slice(0, 1000),
 
       likes: 0,
 
       comentarios: [],
 
-      autor: "Anónimo",
+      autor: nombre,
 
       time:
         new Date().toISOString()
-
     };
 
 
     const posts =
-      loadPosts();
+      loadJSON(POSTS_FILE);
 
     posts.push(nuevoPost);
 
-    savePosts(posts);
+    saveJSON(
+      POSTS_FILE,
+      posts,
+      200
+    );
 
 
-    // Enviar publicación a TODO el mundo
+    // La reciben TODOS
     io.emit(
       "new post",
       nuevoPost
     );
-
   });
 
 
-  // =========================
-  // LIKE
-  // =========================
+  /* ===== LIKES ===== */
 
   socket.on("like post", (id) => {
 
     const posts =
-      loadPosts();
+      loadJSON(POSTS_FILE);
 
     const post =
       posts.find(
@@ -224,21 +191,23 @@ io.on("connection", (socket) => {
 
     if (!post) return;
 
-    post.likes++;
+    post.likes =
+      Number(post.likes || 0) + 1;
 
-    savePosts(posts);
+    saveJSON(
+      POSTS_FILE,
+      posts,
+      200
+    );
 
     io.emit(
       "post updated",
       post
     );
-
   });
 
 
-  // =========================
-  // COMENTARIO
-  // =========================
+  /* ===== COMENTARIOS ===== */
 
   socket.on(
     "comment post",
@@ -252,7 +221,7 @@ io.on("connection", (socket) => {
       if (!comentario) return;
 
       const posts =
-        loadPosts();
+        loadJSON(POSTS_FILE);
 
       const post =
         posts.find(
@@ -261,50 +230,53 @@ io.on("connection", (socket) => {
 
       if (!post) return;
 
-      post.comentarios.push(
-        comentario
-      );
+      if (!Array.isArray(post.comentarios)) {
+        post.comentarios = [];
+      }
 
-      savePosts(posts);
+      post.comentarios.push(comentario);
+
+      saveJSON(
+        POSTS_FILE,
+        posts,
+        200
+      );
 
       io.emit(
         "post updated",
         post
       );
-
     }
   );
 
 
-  // =========================
-  // ELIMINAR PUBLICACIÓN
-  // =========================
+  /* ===== BORRAR ===== */
 
   socket.on("delete post", (id) => {
 
     let posts =
-      loadPosts();
+      loadJSON(POSTS_FILE);
 
     posts =
       posts.filter(
         p =>
-          String(p.id) !==
-          String(id)
+          String(p.id) !== String(id)
       );
 
-    savePosts(posts);
+    saveJSON(
+      POSTS_FILE,
+      posts,
+      200
+    );
 
     io.emit(
       "post deleted",
       id
     );
-
   });
 
 
-  // =========================
-  // DESCONECTAR
-  // =========================
+  /* ===== DESCONECTAR ===== */
 
   socket.on("disconnect", () => {
 
@@ -319,14 +291,11 @@ io.on("connection", (socket) => {
     );
 
     if (name) {
-
       io.emit(
         "system",
         `${name} se ha desconectado`
       );
-
     }
-
   });
 
 });
@@ -336,10 +305,8 @@ server.listen(
   PORT,
   "0.0.0.0",
   () => {
-
     console.log(
       `Servidor funcionando en puerto ${PORT}`
     );
-
   }
 );
