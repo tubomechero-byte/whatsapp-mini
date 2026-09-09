@@ -8,6 +8,7 @@
 
 <style>
 *{box-sizing:border-box}
+
 body{
     margin:0;
     font-family:Arial,sans-serif;
@@ -17,8 +18,13 @@ body{
     justify-content:center;
     align-items:center
 }
+
+button{
+    font-family:Arial,sans-serif
+}
+
 .app{
-    width:min(100%,1000px);
+    width:min(100%,1100px);
     height:94vh;
     background:#efeae2;
     display:flex;
@@ -26,6 +32,11 @@ body{
     box-shadow:0 8px 30px #0002;
     border-radius:12px
 }
+
+/* =========================
+   MENÚ
+========================= */
+
 .menu{
     width:70px;
     background:#111;
@@ -35,6 +46,7 @@ body{
     padding-top:15px;
     gap:12px
 }
+
 .menu button{
     width:50px;
     height:50px;
@@ -45,27 +57,45 @@ body{
     font-size:23px;
     cursor:pointer
 }
-.menu button.active{background:#25d366}
 
-.screen{flex:1;display:none}
-.screen.active{display:flex}
+.menu button.active{
+    background:#25d366
+}
 
-/* WHATSAPP */
-.whatsapp{width:100%}
+.screen{
+    flex:1;
+    display:none
+}
+
+.screen.active{
+    display:flex
+}
+
+/* =========================
+   WHATSAPP
+========================= */
+
+.whatsapp{
+    width:100%
+}
+
 aside{
-    width:310px;
+    width:320px;
     background:#fff;
     border-right:1px solid #ddd;
     display:flex;
     flex-direction:column
 }
+
 .sideHead{
     background:#f0f2f5;
     padding:16px;
     font-weight:bold;
     display:flex;
-    justify-content:space-between
+    justify-content:space-between;
+    align-items:center
 }
+
 .search{
     margin:10px;
     padding:10px 14px;
@@ -74,32 +104,108 @@ aside{
     border-radius:20px;
     outline:0
 }
+
 .people{
-    padding:10px 16px;
+    padding:8px;
     color:#555;
     overflow:auto
 }
+
 .person{
-    padding:9px 0;
-    border-bottom:1px solid #eee
+    padding:10px;
+    border-bottom:1px solid #eee;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px
 }
+
+.personInfo{
+    min-width:0
+}
+
+.personName{
+    font-weight:bold;
+    color:#222;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap
+}
+
+.personOnline{
+    font-size:11px;
+    color:#25a244;
+    margin-top:3px
+}
+
+.callButtons{
+    display:flex;
+    gap:4px
+}
+
+.callButtons button{
+    width:34px;
+    height:34px;
+    border:0;
+    border-radius:50%;
+    cursor:pointer;
+    font-size:16px
+}
+
+.voiceCallBtn{
+    background:#25d366;
+    color:#fff
+}
+
+.videoCallBtn{
+    background:#1877f2;
+    color:#fff
+}
+
 .chat{
     flex:1;
     display:flex;
-    flex-direction:column
+    flex-direction:column;
+    min-width:0
 }
+
 .top{
     background:#f0f2f5;
-    padding:15px 20px;
+    padding:12px 20px;
     font-weight:bold;
-    border-bottom:1px solid #ddd
+    border-bottom:1px solid #ddd;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px
 }
+
+.topTitle{
+    min-width:0
+}
+
 .status{
     font-size:12px;
     color:#667781;
     font-weight:normal;
     margin-top:3px
 }
+
+.callTopButtons{
+    display:flex;
+    gap:7px
+}
+
+.callTopButtons button{
+    border:0;
+    width:40px;
+    height:40px;
+    border-radius:50%;
+    cursor:pointer;
+    font-size:18px;
+    background:#fff
+}
+
 .messages{
     flex:1;
     overflow:auto;
@@ -108,6 +214,7 @@ aside{
     radial-gradient(#fff8 1px,transparent 1px);
     background-size:18px 18px
 }
+
 .msg{
     max-width:75%;
     padding:9px 12px;
@@ -116,34 +223,40 @@ aside{
     background:#fff;
     box-shadow:0 1px 1px #0001
 }
+
 .msg.me{
     margin-left:auto;
     background:#d9fdd3
 }
+
 .msg .user{
     font-size:12px;
     font-weight:bold;
     color:#0b7b6c;
     margin-bottom:3px
 }
+
 .msg .time{
     font-size:10px;
     color:#667781;
     text-align:right;
     margin-top:4px
 }
+
 .system{
     text-align:center;
     color:#667781;
     font-size:12px;
     margin:8px
 }
+
 .form{
     background:#f0f2f5;
     padding:10px;
     display:flex;
     gap:8px
 }
+
 .form input{
     flex:1;
     border:0;
@@ -152,6 +265,7 @@ aside{
     outline:0;
     font-size:15px
 }
+
 .form button{
     border:0;
     border-radius:50%;
@@ -163,7 +277,10 @@ aside{
     cursor:pointer
 }
 
-/* FOTOAPP */
+/* =========================
+   FOTOAPP
+========================= */
+
 .social{
     width:100%;
     background:#f2f2f2;
@@ -171,6 +288,7 @@ aside{
     display:flex;
     flex-direction:column
 }
+
 .socialHeader{
     background:white;
     padding:16px 20px;
@@ -179,10 +297,12 @@ aside{
     justify-content:space-between;
     align-items:center
 }
+
 .socialHeader h1{
     margin:0;
     font-size:24px
 }
+
 .publishTop{
     background:#000;
     color:white;
@@ -192,6 +312,7 @@ aside{
     cursor:pointer;
     font-weight:bold
 }
+
 .publisher{
     background:white;
     max-width:600px;
@@ -201,14 +322,17 @@ aside{
     border-radius:12px;
     box-shadow:0 2px 8px #0001
 }
+
 .publisher h2{
     margin:0 0 12px;
     font-size:19px
 }
+
 .publisher input[type=file]{
     width:100%;
     margin-bottom:10px
 }
+
 .publisher textarea{
     width:100%;
     height:70px;
@@ -219,6 +343,7 @@ aside{
     font-family:Arial;
     margin-bottom:10px
 }
+
 .postBtn{
     width:100%;
     background:#000;
@@ -229,7 +354,11 @@ aside{
     cursor:pointer;
     font-weight:bold
 }
-.feed{width:100%}
+
+.feed{
+    width:100%
+}
+
 .post{
     max-width:600px;
     width:calc(100% - 20px);
@@ -239,18 +368,21 @@ aside{
     overflow:hidden;
     box-shadow:0 2px 8px #0001
 }
+
 .postHeader{
     padding:12px 15px;
     display:flex;
     justify-content:space-between;
     font-weight:bold
 }
+
 .postHeader button{
     background:none;
     border:0;
     cursor:pointer;
     font-size:18px
 }
+
 .post img,
 .post video{
     width:100%;
@@ -258,23 +390,33 @@ aside{
     max-height:600px;
     object-fit:cover
 }
-.postContent{padding:12px 15px}
+
+.postContent{
+    padding:12px 15px
+}
+
 .description{
     margin-bottom:10px;
     line-height:1.4
 }
+
 .actions{
     display:flex;
     gap:15px;
     align-items:center
 }
+
 .actionBtn{
     background:none;
     border:0;
     cursor:pointer;
     font-size:20px
 }
-.likes{font-weight:bold}
+
+.likes{
+    font-weight:bold
+}
+
 .commentInput{
     width:100%;
     margin-top:10px;
@@ -282,6 +424,7 @@ aside{
     border-radius:8px;
     padding:9px
 }
+
 .comment{
     margin-top:8px;
     padding:7px;
@@ -289,11 +432,13 @@ aside{
     border-radius:7px;
     font-size:14px
 }
+
 .empty{
     text-align:center;
     padding:30px;
     color:#777
 }
+
 .error{
     max-width:600px;
     margin:10px auto;
@@ -305,7 +450,10 @@ aside{
     display:none
 }
 
-/* LOGIN */
+/* =========================
+   LOGIN
+========================= */
+
 .overlay{
     position:fixed;
     inset:0;
@@ -313,21 +461,27 @@ aside{
     display:flex;
     align-items:center;
     justify-content:center;
-    z-index:100
+    z-index:1000
 }
+
 .login{
     background:white;
     padding:28px;
     border-radius:16px;
     width:min(90%,380px)
 }
-.login h1{margin-top:0}
+
+.login h1{
+    margin-top:0
+}
+
 .login input{
     width:100%;
     padding:12px;
     border:1px solid #ccc;
     border-radius:8px
 }
+
 .login button{
     width:100%;
     margin-top:12px;
@@ -340,118 +494,565 @@ aside{
     cursor:pointer
 }
 
+/* =========================
+   LLAMADA
+========================= */
+
+.callScreen{
+    position:fixed;
+    inset:0;
+    background:#111;
+    z-index:2000;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    color:white
+}
+
+.callScreen.active{
+    display:flex
+}
+
+.callStatus{
+    font-size:24px;
+    font-weight:bold;
+    margin-bottom:20px;
+    text-align:center
+}
+
+.callVideos{
+    width:min(95vw,1000px);
+    display:flex;
+    gap:12px;
+    justify-content:center;
+    align-items:center;
+    flex-wrap:wrap
+}
+
+.videoBox{
+    position:relative;
+    width:min(46vw,480px);
+    min-width:280px;
+    background:#000;
+    border-radius:15px;
+    overflow:hidden
+}
+
+.videoBox video{
+    width:100%;
+    display:block;
+    min-height:220px;
+    background:#000;
+    object-fit:cover
+}
+
+.videoLabel{
+    position:absolute;
+    left:10px;
+    bottom:10px;
+    background:#0009;
+    padding:5px 8px;
+    border-radius:7px;
+    font-size:12px
+}
+
+.callControls{
+    margin-top:20px;
+    display:flex;
+    gap:12px;
+    justify-content:center
+}
+
+.callControls button{
+    width:52px;
+    height:52px;
+    border:0;
+    border-radius:50%;
+    cursor:pointer;
+    font-size:22px;
+    background:#fff
+}
+
+.callControls .hangup{
+    background:#e53935;
+    color:#fff
+}
+
+.callControls .off{
+    background:#444;
+    color:#fff
+}
+
+/* LLAMADA ENTRANTE */
+
+.incoming{
+    position:fixed;
+    inset:0;
+    background:#0008;
+    z-index:2500;
+    display:none;
+    align-items:center;
+    justify-content:center
+}
+
+.incoming.active{
+    display:flex
+}
+
+.incomingBox{
+    width:min(90%,400px);
+    background:#fff;
+    padding:28px;
+    border-radius:20px;
+    text-align:center;
+    box-shadow:0 10px 40px #0005
+}
+
+.incomingAvatar{
+    font-size:55px;
+    margin-bottom:10px
+}
+
+.incomingBox h2{
+    margin:5px 0
+}
+
+.incomingButtons{
+    display:flex;
+    gap:10px;
+    margin-top:20px
+}
+
+.incomingButtons button{
+    flex:1;
+    border:0;
+    padding:13px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:bold
+}
+
+.accept{
+    background:#25d366;
+    color:white
+}
+
+.reject{
+    background:#e53935;
+    color:white
+}
+
+/* =========================
+   MÓVIL
+========================= */
+
 @media(max-width:700px){
-    body{align-items:stretch}
+
+    body{
+        align-items:stretch
+    }
+
     .app{
         width:100%;
         height:100vh;
         border-radius:0
     }
-    .menu{width:58px}
+
+    .menu{
+        width:58px
+    }
+
     .menu button{
         width:44px;
         height:44px
     }
-    aside{width:115px}
-    .sideHead span{display:none}
-    .person{font-size:13px}
-    .people{padding:8px}
+
+    aside{
+        width:145px
+    }
+
+    .sideHead span{
+        display:none
+    }
+
+    .person{
+        padding:8px 4px
+    }
+
+    .personName{
+        font-size:13px
+    }
+
+    .people{
+        padding:5px
+    }
+
+    .callButtons button{
+        width:29px;
+        height:29px;
+        font-size:13px
+    }
+
+    .top{
+        padding:10px
+    }
+
+    .callTopButtons button{
+        width:34px;
+        height:34px;
+        font-size:15px
+    }
+
+    .msg{
+        max-width:88%
+    }
+
+    .videoBox{
+        width:94vw;
+        min-width:0
+    }
+
+    .callStatus{
+        font-size:20px
+    }
 }
 </style>
 </head>
 
 <body>
 
+<!-- LOGIN -->
+
 <div class="overlay" id="login">
+
     <div class="login">
+
         <h1>💬 Mini WhatsApp</h1>
-        <p>Elige tu nombre para entrar al chat.</p>
-        <input id="name" maxlength="24" placeholder="Tu nombre">
-        <button id="enter">Entrar</button>
+
+        <p>
+            Elige tu nombre para entrar al chat.
+        </p>
+
+        <input
+            id="name"
+            maxlength="24"
+            placeholder="Tu nombre">
+
+        <button id="enter">
+            Entrar
+        </button>
+
     </div>
+
 </div>
+
+
+<!-- LLAMADA ENTRANTE -->
+
+<div
+    class="incoming"
+    id="incomingCall">
+
+    <div class="incomingBox">
+
+        <div class="incomingAvatar">
+            📞
+        </div>
+
+        <h2 id="incomingName">
+            Usuario
+        </h2>
+
+        <p id="incomingType">
+            Te está llamando
+        </p>
+
+        <div class="incomingButtons">
+
+            <button
+                class="reject"
+                id="rejectCall">
+                ❌ Rechazar
+            </button>
+
+            <button
+                class="accept"
+                id="acceptCall">
+                ✅ Aceptar
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- PANTALLA DE LLAMADA -->
+
+<div
+    class="callScreen"
+    id="callScreen">
+
+    <div
+        class="callStatus"
+        id="callStatus">
+        Conectando...
+    </div>
+
+    <div class="callVideos">
+
+        <div
+            class="videoBox"
+            id="localBox">
+
+            <video
+                id="localVideo"
+                autoplay
+                muted
+                playsinline>
+            </video>
+
+            <div class="videoLabel">
+                Tú
+            </div>
+
+        </div>
+
+
+        <div
+            class="videoBox"
+            id="remoteBox">
+
+            <video
+                id="remoteVideo"
+                autoplay
+                playsinline>
+            </video>
+
+            <div
+                class="videoLabel"
+                id="remoteLabel">
+                Usuario
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="callControls">
+
+        <button
+            id="muteBtn"
+            title="Micrófono">
+            🎤
+        </button>
+
+        <button
+            id="cameraBtn"
+            title="Cámara">
+            📷
+        </button>
+
+        <button
+            class="hangup"
+            id="hangupBtn"
+            title="Colgar">
+            ☎️
+        </button>
+
+    </div>
+
+</div>
+
 
 <div class="app">
 
     <nav class="menu">
-        <button id="whatsappBtn" class="active"
-                onclick="mostrarPantalla('whatsapp')">💬</button>
 
-        <button id="socialBtn"
-                onclick="mostrarPantalla('social')">📸</button>
+        <button
+            id="whatsappBtn"
+            class="active"
+            onclick="mostrarPantalla('whatsapp')">
+            💬
+        </button>
+
+        <button
+            id="socialBtn"
+            onclick="mostrarPantalla('social')">
+            📸
+        </button>
+
     </nav>
 
+
     <!-- WHATSAPP -->
-    <section class="screen active whatsapp" id="whatsapp">
+
+    <section
+        class="screen active whatsapp"
+        id="whatsapp">
 
         <aside>
+
             <div class="sideHead">
-                <span>Chats</span>🟢
+
+                <span>
+                    Chats
+                </span>
+
+                🟢
+
             </div>
 
-            <input class="search" placeholder="Buscar">
 
-            <div class="people" id="people">
+            <input
+                class="search"
+                id="searchPeople"
+                placeholder="Buscar">
+
+
+            <div
+                class="people"
+                id="people">
+
                 Conectando...
+
             </div>
+
         </aside>
+
 
         <section class="chat">
 
             <div class="top">
-                🌐 Chat general
-                <div class="status" id="status">
-                    Conecta para empezar
+
+                <div class="topTitle">
+
+                    🌐 Chat general
+
+                    <div
+                        class="status"
+                        id="status">
+
+                        Conecta para empezar
+
+                    </div>
+
                 </div>
+
+
+                <div class="callTopButtons">
+
+                    <button
+                        id="quickVoiceCall"
+                        title="Llamada de voz">
+                        📞
+                    </button>
+
+                    <button
+                        id="quickVideoCall"
+                        title="Videollamada">
+                        📹
+                    </button>
+
+                </div>
+
             </div>
 
-            <div class="messages" id="messages"></div>
 
-            <form class="form" id="form">
-                <input id="input"
-                       autocomplete="off"
-                       placeholder="Escribe un mensaje...">
-                <button>➤</button>
+            <div
+                class="messages"
+                id="messages">
+            </div>
+
+
+            <form
+                class="form"
+                id="form">
+
+                <input
+                    id="input"
+                    autocomplete="off"
+                    placeholder="Escribe un mensaje...">
+
+                <button>
+                    ➤
+                </button>
+
             </form>
 
         </section>
 
     </section>
 
+
     <!-- FOTOAPP -->
-    <section class="screen social" id="social">
+
+    <section
+        class="screen social"
+        id="social">
 
         <header class="socialHeader">
-            <h1>📸 FotoApp</h1>
 
-            <button class="publishTop"
-                    onclick="document.getElementById('fileInput').click()">
+            <h1>
+                📸 FotoApp
+            </h1>
+
+
+            <button
+                class="publishTop"
+                onclick="document.getElementById('fileInput').click()">
+
                 + Publicar
+
             </button>
+
         </header>
+
 
         <div class="publisher">
 
-            <h2>Crear publicación</h2>
+            <h2>
+                Crear publicación
+            </h2>
 
-            <input type="file"
-                   id="fileInput"
-                   accept="image/*,video/*">
 
-            <textarea id="description"
-                      maxlength="1000"
-                      placeholder="Escribe algo..."></textarea>
+            <input
+                type="file"
+                id="fileInput"
+                accept="image/*,video/*">
 
-            <button class="postBtn"
-                    onclick="crearPublicacion()">
+
+            <textarea
+                id="description"
+                maxlength="1000"
+                placeholder="Escribe algo...">
+            </textarea>
+
+
+            <button
+                class="postBtn"
+                onclick="crearPublicacion()">
+
                 Publicar
+
             </button>
 
         </div>
 
-        <div id="postError" class="error"></div>
 
-        <div class="feed" id="feed"></div>
+        <div
+            id="postError"
+            class="error">
+        </div>
+
+
+        <div
+            class="feed"
+            id="feed">
+        </div>
 
     </section>
 
@@ -459,13 +1060,59 @@ aside{
 
 
 <script>
+
 const socket = io();
+
+
+/* =========================
+   VARIABLES
+========================= */
+
+let myName =
+    localStorage.getItem("miniName") || "";
+
+let onlineUsers = [];
+
+let currentCall = null;
+
+let pendingIncomingCall = null;
+
+let localStream = null;
+
+let remoteStream = null;
+
+let peerConnection = null;
+
+let pendingCandidates = [];
+
+
+/* STUN */
+
+const rtcConfig = {
+
+    iceServers: [
+
+        {
+            urls:
+                "stun:stun.l.google.com:19302"
+        },
+
+        {
+            urls:
+                "stun:stun1.l.google.com:19302"
+        }
+
+    ]
+
+};
+
 
 /* =========================
    FUNCIONES GENERALES
 ========================= */
 
 function escapeHtml(s){
+
     return String(s).replace(
         /[&<>"']/g,
         c => ({
@@ -479,39 +1126,52 @@ function escapeHtml(s){
 }
 
 
-/* =========================
-   CAMBIAR PANTALLA
-========================= */
-
 function mostrarPantalla(pantalla){
 
-    document.querySelectorAll(".screen")
-        .forEach(x => x.classList.remove("active"));
+    document
+        .querySelectorAll(".screen")
+        .forEach(
+            x =>
+            x.classList.remove("active")
+        );
 
-    document.getElementById(pantalla)
+
+    document
+        .getElementById(pantalla)
         .classList.add("active");
 
-    document.querySelectorAll(".menu button")
-        .forEach(x => x.classList.remove("active"));
+
+    document
+        .querySelectorAll(".menu button")
+        .forEach(
+            x =>
+            x.classList.remove("active")
+        );
+
 
     if(pantalla === "whatsapp"){
-        document.getElementById("whatsappBtn")
+
+        document
+            .getElementById("whatsappBtn")
             .classList.add("active");
+
     }
 
+
     if(pantalla === "social"){
-        document.getElementById("socialBtn")
+
+        document
+            .getElementById("socialBtn")
             .classList.add("active");
+
     }
+
 }
 
 
 /* =========================
-   WHATSAPP
+   LOGIN
 ========================= */
-
-let myName =
-    localStorage.getItem("miniName") || "";
 
 const login =
     document.getElementById("login");
@@ -521,6 +1181,74 @@ const nameInput =
 
 const enter =
     document.getElementById("enter");
+
+
+function enterChat(){
+
+    const n =
+        nameInput.value.trim();
+
+    if(!n){
+
+        return;
+    }
+
+
+    myName =
+        n.slice(0,24);
+
+
+    localStorage.setItem(
+        "miniName",
+        myName
+    );
+
+
+    login.style.display =
+        "none";
+
+
+    socket.emit(
+        "join",
+        myName
+    );
+
+
+    input.focus();
+}
+
+
+enter.onclick =
+    enterChat;
+
+
+nameInput.addEventListener(
+    "keydown",
+    e => {
+
+        if(e.key === "Enter"){
+
+            enterChat();
+
+        }
+
+    }
+);
+
+
+if(myName){
+
+    nameInput.value =
+        myName;
+
+    enterChat();
+
+}
+
+
+/* =========================
+   CHAT
+========================= */
 
 const messages =
     document.getElementById("messages");
@@ -537,15 +1265,20 @@ const people =
 const status =
     document.getElementById("status");
 
+const searchPeople =
+    document.getElementById("searchPeople");
+
 
 function time(iso){
-    return new Date(iso).toLocaleTimeString(
-        [],
-        {
-            hour:"2-digit",
-            minute:"2-digit"
-        }
-    );
+
+    return new Date(iso)
+        .toLocaleTimeString(
+            [],
+            {
+                hour:"2-digit",
+                minute:"2-digit"
+            }
+        );
 }
 
 
@@ -554,126 +1287,265 @@ function addMessage(m){
     const div =
         document.createElement("div");
 
+
     div.className =
         "msg" +
-        (m.user === myName ? " me" : "");
+        (
+            m.user === myName
+            ? " me"
+            : ""
+        );
+
 
     div.innerHTML = `
+
         <div class="user">
             ${escapeHtml(m.user)}
         </div>
+
         <div>
             ${escapeHtml(m.text)}
         </div>
+
         <div class="time">
             ${time(m.time)}
         </div>
+
     `;
 
+
     messages.appendChild(div);
+
 
     messages.scrollTop =
         messages.scrollHeight;
 }
 
 
-function enterChat(){
+socket.on(
+    "history",
+    list => {
 
-    const n =
-        nameInput.value.trim();
+        messages.innerHTML = "";
 
-    if(!n) return;
+        list.forEach(
+            addMessage
+        );
 
-    myName =
-        n.slice(0,24);
-
-    localStorage.setItem(
-        "miniName",
-        myName
-    );
-
-    login.style.display = "none";
-
-    socket.emit("join", myName);
-
-    input.focus();
-}
-
-
-enter.onclick = enterChat;
-
-nameInput.addEventListener(
-    "keydown",
-    e => {
-        if(e.key === "Enter"){
-            enterChat();
-        }
     }
 );
 
 
-if(myName){
-    nameInput.value = myName;
-    enterChat();
+socket.on(
+    "chat message",
+    addMessage
+);
+
+
+socket.on(
+    "system",
+    text => {
+
+        const div =
+            document.createElement("div");
+
+        div.className =
+            "system";
+
+        div.textContent =
+            text;
+
+        messages.appendChild(div);
+
+        messages.scrollTop =
+            messages.scrollHeight;
+
+    }
+);
+
+
+function renderUsers(){
+
+    const search =
+        searchPeople.value
+            .trim()
+            .toLowerCase();
+
+
+    const filtered =
+        onlineUsers.filter(
+            user =>
+
+                user.name
+                    .toLowerCase()
+                    .includes(search)
+        );
+
+
+    if(filtered.length === 0){
+
+        people.innerHTML =
+            "Nadie conectado";
+
+        return;
+    }
+
+
+    people.innerHTML = "";
+
+
+    filtered.forEach(
+        user => {
+
+            if(user.id === socket.id){
+
+                return;
+
+            }
+
+
+            const div =
+                document.createElement("div");
+
+            div.className =
+                "person";
+
+
+            div.innerHTML = `
+
+                <div class="personInfo">
+
+                    <div class="personName">
+                        🟢
+                        ${escapeHtml(user.name)}
+                    </div>
+
+                    <div class="personOnline">
+                        En línea
+                    </div>
+
+                </div>
+
+                <div class="callButtons">
+
+                    <button
+                        class="voiceCallBtn"
+                        title="Llamar"
+                        data-id="${escapeHtml(user.id)}"
+                        data-type="voice">
+
+                        📞
+
+                    </button>
+
+                    <button
+                        class="videoCallBtn"
+                        title="Videollamada"
+                        data-id="${escapeHtml(user.id)}"
+                        data-type="video">
+
+                        📹
+
+                    </button>
+
+                </div>
+
+            `;
+
+
+            people.appendChild(div);
+
+        }
+    );
+
+
+    people
+        .querySelectorAll(".callButtons button")
+        .forEach(
+            button => {
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        const id =
+                            button.dataset.id;
+
+                        const video =
+                            button.dataset.type === "video";
+
+                        iniciarLlamada(
+                            id,
+                            video
+                        );
+
+                    }
+                );
+
+            }
+        );
+
 }
 
 
-socket.on("history", list => {
-    messages.innerHTML = "";
-    list.forEach(addMessage);
-});
+searchPeople.addEventListener(
+    "input",
+    renderUsers
+);
 
 
-socket.on("chat message", addMessage);
+socket.on(
+    "users",
+    list => {
+
+        onlineUsers =
+            Array.isArray(list)
+            ? list
+            : [];
 
 
-socket.on("system", text => {
-
-    const div =
-        document.createElement("div");
-
-    div.className = "system";
-    div.textContent = text;
-
-    messages.appendChild(div);
-
-    messages.scrollTop =
-        messages.scrollHeight;
-});
+        renderUsers();
 
 
-socket.on("users", list => {
-
-    people.innerHTML = list.length
-        ? list.map(
-            u =>
-            `<div class="person">
-                🟢 ${escapeHtml(u)}
-             </div>`
-          ).join("")
-        : "Nadie conectado";
-
-    status.textContent =
-        `${list.length} conectado${list.length === 1 ? "" : "s"}`;
-});
+        const cantidad =
+            onlineUsers.length;
 
 
-form.addEventListener("submit", e => {
+        status.textContent =
+            `${cantidad} conectado` +
+            `${cantidad === 1 ? "" : "s"}`;
 
-    e.preventDefault();
+    }
+);
 
-    const text =
-        input.value.trim();
 
-    if(!text) return;
+form.addEventListener(
+    "submit",
+    e => {
 
-    socket.emit(
-        "chat message",
-        text
-    );
+        e.preventDefault();
 
-    input.value = "";
-});
+
+        const text =
+            input.value.trim();
+
+
+        if(!text){
+
+            return;
+        }
+
+
+        socket.emit(
+            "chat message",
+            text
+        );
+
+
+        input.value = "";
+
+    }
+);
 
 
 /* =========================
@@ -691,12 +1563,23 @@ let publicaciones = [];
 
 function mostrarError(texto){
 
-    postError.textContent = texto;
-    postError.style.display = "block";
+    postError.textContent =
+        texto;
 
-    setTimeout(() => {
-        postError.style.display = "none";
-    }, 4000);
+    postError.style.display =
+        "block";
+
+
+    setTimeout(
+        () => {
+
+            postError.style.display =
+                "none";
+
+        },
+        4000
+    );
+
 }
 
 
@@ -704,12 +1587,17 @@ function renderPosts(){
 
     feed.innerHTML = "";
 
+
     if(publicaciones.length === 0){
 
         feed.innerHTML = `
+
             <div class="empty">
+
                 Todavía no hay publicaciones.
+
             </div>
+
         `;
 
         return;
@@ -720,146 +1608,247 @@ function renderPosts(){
         [...publicaciones].reverse();
 
 
-    ordenadas.forEach(post => {
+    ordenadas.forEach(
+        post => {
 
-        const elemento =
-            document.createElement("article");
+            const elemento =
+                document.createElement("article");
 
-        elemento.className = "post";
-
-
-        let media = "";
-
-        if(post.tipo === "video"){
-
-            media = `
-                <video controls preload="metadata">
-                    <source src="${post.archivo}">
-                </video>
-            `;
-
-        }else{
-
-            media = `
-                <img src="${post.archivo}"
-                     alt="Publicación">
-            `;
-        }
+            elemento.className =
+                "post";
 
 
-        const comentarios =
-            Array.isArray(post.comentarios)
-            ? post.comentarios
-            : [];
+            let media = "";
 
 
-        elemento.innerHTML = `
+            if(post.tipo === "video"){
 
-            <div class="postHeader">
+                media = `
 
-                <span>
-                    👤 ${escapeHtml(post.autor || "Anónimo")}
-                </span>
+                    <video
+                        controls
+                        preload="metadata">
 
-                <button
-                    onclick="eliminarPublicacion('${post.id}')">
-                    🗑️
-                </button>
+                        <source
+                            src="${post.archivo}">
 
-            </div>
+                    </video>
 
-            ${media}
+                `;
 
-            <div class="postContent">
+            }else{
 
-                ${
-                    post.descripcion
-                    ? `<div class="description">
-                        ${escapeHtml(post.descripcion)}
-                       </div>`
-                    : ""
-                }
+                media = `
 
-                <div class="actions">
+                    <img
+                        src="${post.archivo}"
+                        alt="Publicación">
 
-                    <button
-                        class="actionBtn"
-                        onclick="darLike('${post.id}')">
-                        ❤️
-                    </button>
+                `;
 
-                    <span class="likes">
-                        ${post.likes || 0} me gusta
+            }
+
+
+            const comentarios =
+                Array.isArray(post.comentarios)
+                ? post.comentarios
+                : [];
+
+
+            elemento.innerHTML = `
+
+                <div class="postHeader">
+
+                    <span>
+
+                        👤
+                        ${escapeHtml(
+                            post.autor || "Usuario"
+                        )}
+
                     </span>
 
+
+                    <button
+                        onclick="eliminarPublicacion('${post.id}')">
+
+                        🗑️
+
+                    </button>
+
                 </div>
 
-                <input
-                    class="commentInput"
-                    maxlength="500"
-                    placeholder="Escribe un comentario..."
-                    onkeydown="comentar(event,'${post.id}')">
 
-                <div>
+                ${media}
+
+
+                <div class="postContent">
 
                     ${
-                        comentarios.map(
-                            c =>
-                            `<div class="comment">
-                                👤 Anónimo:
-                                ${escapeHtml(c)}
-                             </div>`
-                        ).join("")
+                        post.descripcion
+
+                        ? `
+
+                            <div class="description">
+
+                                ${escapeHtml(
+                                    post.descripcion
+                                )}
+
+                            </div>
+
+                          `
+
+                        : ""
                     }
+
+
+                    <div class="actions">
+
+                        <button
+                            class="actionBtn"
+                            onclick="darLike('${post.id}')">
+
+                            ❤️
+
+                        </button>
+
+
+                        <span class="likes">
+
+                            ${post.likes || 0}
+                            me gusta
+
+                        </span>
+
+                    </div>
+
+
+                    <input
+                        class="commentInput"
+                        maxlength="500"
+                        placeholder="Escribe un comentario..."
+                        onkeydown="comentar(event,'${post.id}')">
+
+
+                    <div>
+
+                        ${
+                            comentarios
+                                .map(
+                                    c => {
+
+                                        if(
+                                            typeof c ===
+                                            "string"
+                                        ){
+
+                                            return `
+
+                                                <div class="comment">
+
+                                                    👤 Usuario:
+                                                    ${escapeHtml(c)}
+
+                                                </div>
+
+                                            `;
+
+                                        }
+
+
+                                        return `
+
+                                            <div class="comment">
+
+                                                👤
+                                                ${escapeHtml(
+                                                    c.autor || "Usuario"
+                                                )}:
+
+                                                ${escapeHtml(
+                                                    c.texto || ""
+                                                )}
+
+                                            </div>
+
+                                        `;
+
+                                    }
+                                )
+                                .join("")
+                        }
+
+                    </div>
 
                 </div>
 
-            </div>
-        `;
+            `;
 
-        feed.appendChild(elemento);
-    });
+
+            feed.appendChild(
+                elemento
+            );
+
+        }
+    );
+
 }
 
 
-/* RECIBIR PUBLICACIONES EXISTENTES */
+socket.on(
+    "posts history",
+    posts => {
 
-socket.on("posts history", posts => {
+        publicaciones =
+            Array.isArray(posts)
+            ? posts
+            : [];
 
-    publicaciones =
-        Array.isArray(posts)
-        ? posts
-        : [];
+        renderPosts();
 
-    renderPosts();
-});
+    }
+);
 
 
-/* RECIBIR PUBLICACIÓN NUEVA */
+socket.on(
+    "new post",
+    post => {
 
-socket.on("new post", post => {
+        const existe =
+            publicaciones.some(
+                p =>
+                String(p.id) ===
+                String(post.id)
+            );
 
-    const existe =
-        publicaciones.some(
-            p => String(p.id) === String(post.id)
+
+        if(!existe){
+
+            publicaciones.push(
+                post
+            );
+
+        }
+
+
+        renderPosts();
+
+    }
+);
+
+
+socket.on(
+    "post error",
+    texto => {
+
+        mostrarError(
+            texto
         );
 
-    if(!existe){
-        publicaciones.push(post);
     }
+);
 
-    renderPosts();
-});
-
-
-/* ERROR DEL SERVIDOR */
-
-socket.on("post error", texto => {
-    mostrarError(texto);
-});
-
-
-/* CREAR PUBLICACIÓN */
 
 function crearPublicacion(){
 
@@ -884,7 +1873,10 @@ function crearPublicacion(){
         fileInput.files[0];
 
 
-    if(file.size > 20 * 1024 * 1024){
+    if(
+        file.size >
+        20 * 1024 * 1024
+    ){
 
         mostrarError(
             "El archivo supera los 20 MB."
@@ -898,72 +1890,82 @@ function crearPublicacion(){
         new FileReader();
 
 
-    reader.onload = () => {
+    reader.onload =
+        () => {
 
-        const post = {
+            socket.emit(
+                "new post",
+                {
 
-            tipo:
-                file.type.startsWith("video")
-                ? "video"
-                : "imagen",
+                    tipo:
+                        file.type.startsWith("video")
+                        ? "video"
+                        : "imagen",
 
-            archivo:
-                reader.result,
+                    archivo:
+                        reader.result,
 
-            descripcion:
-                description.value.trim()
+                    descripcion:
+                        description.value.trim()
+
+                }
+            );
+
+
+            fileInput.value =
+                "";
+
+            description.value =
+                "";
+
         };
 
 
-        socket.emit(
-            "new post",
-            post
-        );
+    reader.onerror =
+        () => {
 
+            mostrarError(
+                "No se pudo leer el archivo."
+            );
 
-        fileInput.value = "";
-        description.value = "";
-
-    };
-
-
-    reader.onerror = () => {
-
-        mostrarError(
-            "No se pudo leer el archivo."
-        );
-
-    };
+        };
 
 
     reader.readAsDataURL(file);
+
 }
 
 
-/* LIKE */
+socket.on(
+    "post updated",
+    post => {
 
-socket.on("post updated", post => {
+        const index =
+            publicaciones.findIndex(
+                p =>
+                String(p.id) ===
+                String(post.id)
+            );
 
-    const index =
-        publicaciones.findIndex(
-            p =>
-            String(p.id) ===
-            String(post.id)
-        );
 
-    if(index !== -1){
+        if(index !== -1){
 
-        publicaciones[index] =
-            post;
+            publicaciones[index] =
+                post;
 
-    }else{
+        }else{
 
-        publicaciones.push(post);
+            publicaciones.push(
+                post
+            );
+
+        }
+
+
+        renderPosts();
 
     }
-
-    renderPosts();
-});
+);
 
 
 function darLike(id){
@@ -972,49 +1974,65 @@ function darLike(id){
         "like post",
         id
     );
+
 }
 
 
-/* COMENTARIO */
-
 function comentar(event,id){
 
-    if(event.key !== "Enter"){
+    if(
+        event.key !==
+        "Enter"
+    ){
+
         return;
     }
+
 
     const texto =
         event.target.value.trim();
 
+
     if(!texto){
+
         return;
     }
+
 
     socket.emit(
         "comment post",
         {
+
             id:id,
+
             comentario:texto
+
         }
     );
 
-    event.target.value = "";
+
+    event.target.value =
+        "";
+
 }
 
 
-/* ELIMINAR */
+socket.on(
+    "post deleted",
+    id => {
 
-socket.on("post deleted", id => {
+        publicaciones =
+            publicaciones.filter(
+                p =>
+                String(p.id) !==
+                String(id)
+            );
 
-    publicaciones =
-        publicaciones.filter(
-            p =>
-            String(p.id) !==
-            String(id)
-        );
 
-    renderPosts();
-});
+        renderPosts();
+
+    }
+);
 
 
 function eliminarPublicacion(id){
@@ -1023,21 +2041,1084 @@ function eliminarPublicacion(id){
         "delete post",
         id
     );
+
 }
 
 
-/* CONEXIÓN */
+/* =========================
+   LLAMADAS WEBRTC
+========================= */
 
-socket.on("connect", () => {
-    console.log("Conectado al servidor:", socket.id);
-});
+const callScreen =
+    document.getElementById("callScreen");
 
-socket.on("disconnect", () => {
-    status.textContent = "Desconectado";
-});
+const callStatus =
+    document.getElementById("callStatus");
+
+const localVideo =
+    document.getElementById("localVideo");
+
+const remoteVideo =
+    document.getElementById("remoteVideo");
+
+const remoteLabel =
+    document.getElementById("remoteLabel");
+
+const muteBtn =
+    document.getElementById("muteBtn");
+
+const cameraBtn =
+    document.getElementById("cameraBtn");
+
+const hangupBtn =
+    document.getElementById("hangupBtn");
 
 
-/* PRIMERA CARGA */
+const incomingCall =
+    document.getElementById("incomingCall");
+
+const incomingName =
+    document.getElementById("incomingName");
+
+const incomingType =
+    document.getElementById("incomingType");
+
+const acceptCall =
+    document.getElementById("acceptCall");
+
+const rejectCall =
+    document.getElementById("rejectCall");
+
+
+const quickVoiceCall =
+    document.getElementById("quickVoiceCall");
+
+const quickVideoCall =
+    document.getElementById("quickVideoCall");
+
+
+/* Buscar un usuario */
+
+function getUserById(id){
+
+    return onlineUsers.find(
+        user =>
+        user.id === id
+    );
+
+}
+
+
+/* Crear PeerConnection */
+
+function createPeerConnection(targetId){
+
+    const pc =
+        new RTCPeerConnection(
+            rtcConfig
+        );
+
+
+    pc.onicecandidate =
+        event => {
+
+            if(
+                event.candidate
+            ){
+
+                socket.emit(
+                    "call-signal",
+                    {
+
+                        to:
+                            targetId,
+
+                        type:
+                            "candidate",
+
+                        candidate:
+                            event.candidate
+
+                    }
+                );
+
+            }
+
+        };
+
+
+    pc.ontrack =
+        event => {
+
+            if(
+                !remoteStream
+            ){
+
+                remoteStream =
+                    new MediaStream();
+
+            }
+
+
+            event.streams[0]
+                .getTracks()
+                .forEach(
+                    track => {
+
+                        const existe =
+                            remoteStream
+                                .getTracks()
+                                .some(
+                                    t =>
+                                    t.id ===
+                                    track.id
+                                );
+
+
+                        if(!existe){
+
+                            remoteStream.addTrack(
+                                track
+                            );
+
+                        }
+
+                    }
+                );
+
+
+            remoteVideo.srcObject =
+                remoteStream;
+
+        };
+
+
+    pc.onconnectionstatechange =
+        () => {
+
+            const state =
+                pc.connectionState;
+
+
+            if(
+                state ===
+                "connected"
+            ){
+
+                callStatus.textContent =
+                    "Llamada conectada";
+
+            }
+
+
+            if(
+                state ===
+                "disconnected" ||
+                state ===
+                "failed" ||
+                state ===
+                "closed"
+            ){
+
+                terminarLlamada(
+                    false
+                );
+
+            }
+
+        };
+
+
+    return pc;
+}
+
+
+/* Mostrar llamada */
+
+function mostrarLlamada(){
+
+    callScreen.classList.add(
+        "active"
+    );
+
+}
+
+
+/* Obtener cámara/micrófono */
+
+async function obtenerMedia(video){
+
+    try{
+
+        localStream =
+            await navigator.mediaDevices
+                .getUserMedia({
+
+                    audio:true,
+
+                    video:video
+
+                });
+
+
+        localVideo.srcObject =
+            localStream;
+
+
+        document
+            .getElementById("localBox")
+            .style.display =
+            "block";
+
+
+        document
+            .getElementById("remoteBox")
+            .style.display =
+            video
+            ? "block"
+            : "none";
+
+
+        cameraBtn.style.display =
+            video
+            ? "block"
+            : "none";
+
+
+        return true;
+
+    }catch(error){
+
+        console.error(
+            error
+        );
+
+
+        alert(
+            "No se pudo acceder al micrófono o la cámara. Revisa los permisos del navegador."
+        );
+
+
+        return false;
+
+    }
+
+}
+
+
+/* Iniciar llamada */
+
+async function iniciarLlamada(
+    targetId,
+    video
+){
+
+    if(
+        currentCall
+    ){
+
+        return;
+    }
+
+
+    if(
+        targetId ===
+        socket.id
+    ){
+
+        return;
+    }
+
+
+    const user =
+        getUserById(
+            targetId
+        );
+
+
+    if(!user){
+
+        alert(
+            "Ese usuario ya no está conectado."
+        );
+
+        return;
+    }
+
+
+    currentCall = {
+
+        targetId:
+            targetId,
+
+        video:
+            video,
+
+        caller:true
+
+    };
+
+
+    remoteLabel.textContent =
+        user.name;
+
+
+    callStatus.textContent =
+        video
+        ? `Llamando a ${user.name}...`
+        : `Llamando a ${user.name}...`;
+
+
+    mostrarLlamada();
+
+
+    const mediaOk =
+        await obtenerMedia(
+            video
+        );
+
+
+    if(!mediaOk){
+
+        terminarLlamada(
+            false
+        );
+
+        return;
+    }
+
+
+    peerConnection =
+        createPeerConnection(
+            targetId
+        );
+
+
+    localStream
+        .getTracks()
+        .forEach(
+            track => {
+
+                peerConnection.addTrack(
+                    track,
+                    localStream
+                );
+
+            }
+        );
+
+
+    const offer =
+        await peerConnection
+            .createOffer();
+
+
+    await peerConnection
+        .setLocalDescription(
+            offer
+        );
+
+
+    socket.emit(
+        "call-user",
+        {
+
+            to:
+                targetId,
+
+            fromName:
+                myName,
+
+            video:
+                video,
+
+            offer:
+                offer
+
+        }
+    );
+
+}
+
+
+/* Llamada entrante */
+
+socket.on(
+    "incoming-call",
+    data => {
+
+        if(currentCall){
+
+            socket.emit(
+                "call-rejected",
+                {
+                    to:data.from
+                }
+            );
+
+            return;
+        }
+
+
+        pendingIncomingCall =
+            data;
+
+
+        incomingName.textContent =
+            data.fromName;
+
+
+        incomingType.textContent =
+            data.video
+            ? "Te está haciendo una videollamada"
+            : "Te está haciendo una llamada de voz";
+
+
+        acceptCall.textContent =
+            data.video
+            ? "✅ Aceptar vídeo"
+            : "✅ Aceptar";
+
+
+        incomingCall.classList.add(
+            "active"
+        );
+
+    }
+);
+
+
+/* Aceptar */
+
+acceptCall.onclick =
+    async () => {
+
+        if(
+            !pendingIncomingCall
+        ){
+
+            return;
+        }
+
+
+        const data =
+            pendingIncomingCall;
+
+
+        pendingIncomingCall =
+            null;
+
+
+        incomingCall.classList.remove(
+            "active"
+        );
+
+
+        currentCall = {
+
+            targetId:
+                data.from,
+
+            video:
+                data.video,
+
+            caller:false
+
+        };
+
+
+        remoteLabel.textContent =
+            data.fromName;
+
+
+        callStatus.textContent =
+            `Conectando con ${data.fromName}...`;
+
+
+        mostrarLlamada();
+
+
+        const mediaOk =
+            await obtenerMedia(
+                data.video
+            );
+
+
+        if(!mediaOk){
+
+            socket.emit(
+                "call-rejected",
+                {
+                    to:data.from
+                }
+            );
+
+
+            terminarLlamada(
+                false
+            );
+
+            return;
+        }
+
+
+        peerConnection =
+            createPeerConnection(
+                data.from
+            );
+
+
+        localStream
+            .getTracks()
+            .forEach(
+                track => {
+
+                    peerConnection.addTrack(
+                        track,
+                        localStream
+                    );
+
+                }
+            );
+
+
+        await peerConnection
+            .setRemoteDescription(
+                new RTCSessionDescription(
+                    data.offer
+                )
+            );
+
+
+        for(
+            const candidate of pendingCandidates
+        ){
+
+            try{
+
+                await peerConnection
+                    .addIceCandidate(
+                        candidate
+                    );
+
+            }catch(error){
+
+                console.error(
+                    error
+                );
+
+            }
+
+        }
+
+
+        pendingCandidates =
+            [];
+
+
+        const answer =
+            await peerConnection
+                .createAnswer();
+
+
+        await peerConnection
+            .setLocalDescription(
+                answer
+            );
+
+
+        socket.emit(
+            "call-signal",
+            {
+
+                to:
+                    data.from,
+
+                type:
+                    "answer",
+
+                answer:
+                    answer
+
+            }
+        );
+
+    };
+
+
+/* Rechazar */
+
+rejectCall.onclick =
+    () => {
+
+        if(
+            pendingIncomingCall
+        ){
+
+            socket.emit(
+                "call-rejected",
+                {
+
+                    to:
+                        pendingIncomingCall.from
+
+                }
+            );
+
+        }
+
+
+        pendingIncomingCall =
+            null;
+
+
+        incomingCall.classList.remove(
+            "active"
+        );
+
+    };
+
+
+/* Señalización */
+
+socket.on(
+    "call-signal",
+    async data => {
+
+        if(
+            !currentCall
+        ){
+
+            return;
+        }
+
+
+        if(
+            data.type ===
+            "answer"
+        ){
+
+            if(
+                !peerConnection
+            ){
+
+                return;
+            }
+
+
+            await peerConnection
+                .setRemoteDescription(
+                    new RTCSessionDescription(
+                        data.answer
+                    )
+                );
+
+
+            callStatus.textContent =
+                "Llamada conectada";
+
+
+            for(
+                const candidate of pendingCandidates
+            ){
+
+                try{
+
+                    await peerConnection
+                        .addIceCandidate(
+                            candidate
+                        );
+
+                }catch(error){
+
+                    console.error(
+                        error
+                    );
+
+                }
+
+            }
+
+
+            pendingCandidates =
+                [];
+
+        }
+
+
+        if(
+            data.type ===
+            "candidate"
+        ){
+
+            const candidate =
+                new RTCIceCandidate(
+                    data.candidate
+                );
+
+
+            if(
+                peerConnection &&
+                peerConnection.remoteDescription
+            ){
+
+                try{
+
+                    await peerConnection
+                        .addIceCandidate(
+                            candidate
+                        );
+
+                }catch(error){
+
+                    console.error(
+                        error
+                    );
+
+                }
+
+            }else{
+
+                pendingCandidates.push(
+                    candidate
+                );
+
+            }
+
+        }
+
+    }
+);
+
+
+/* Rechazada */
+
+socket.on(
+    "call-rejected",
+    () => {
+
+        alert(
+            "La llamada ha sido rechazada."
+        );
+
+
+        terminarLlamada(
+            false
+        );
+
+    }
+);
+
+
+/* Llamada finalizada */
+
+socket.on(
+    "call-ended",
+    () => {
+
+        terminarLlamada(
+            false
+        );
+
+    }
+);
+
+
+/* Colgar */
+
+hangupBtn.onclick =
+    () => {
+
+        terminarLlamada(
+            true
+        );
+
+    };
+
+
+function terminarLlamada(
+    avisarServidor = true
+){
+
+    if(
+        avisarServidor &&
+        currentCall
+    ){
+
+        socket.emit(
+            "call-ended",
+            {
+
+                to:
+                    currentCall.targetId
+
+            }
+        );
+
+    }
+
+
+    if(
+        peerConnection
+    ){
+
+        peerConnection.close();
+
+        peerConnection =
+            null;
+
+    }
+
+
+    if(
+        localStream
+    ){
+
+        localStream
+            .getTracks()
+            .forEach(
+                track =>
+                track.stop()
+            );
+
+        localStream =
+            null;
+
+    }
+
+
+    remoteStream =
+        null;
+
+
+    localVideo.srcObject =
+        null;
+
+    remoteVideo.srcObject =
+        null;
+
+
+    currentCall =
+        null;
+
+
+    pendingCandidates =
+        [];
+
+
+    callScreen.classList.remove(
+        "active"
+    );
+
+
+    incomingCall.classList.remove(
+        "active"
+    );
+
+
+    callStatus.textContent =
+        "Conectando...";
+
+
+    muteBtn.textContent =
+        "🎤";
+
+
+    cameraBtn.textContent =
+        "📷";
+
+}
+
+
+/* Micrófono */
+
+muteBtn.onclick =
+    () => {
+
+        if(!localStream){
+            return;
+        }
+
+
+        const tracks =
+            localStream.getAudioTracks();
+
+
+        tracks.forEach(
+            track => {
+
+                track.enabled =
+                    !track.enabled;
+
+            }
+        );
+
+
+        const apagado =
+            tracks.length &&
+            !tracks[0].enabled;
+
+
+        muteBtn.textContent =
+            apagado
+            ? "🔇"
+            : "🎤";
+
+
+        muteBtn.classList.toggle(
+            "off",
+            apagado
+        );
+
+    };
+
+
+/* Cámara */
+
+cameraBtn.onclick =
+    () => {
+
+        if(!localStream){
+            return;
+        }
+
+
+        const tracks =
+            localStream.getVideoTracks();
+
+
+        tracks.forEach(
+            track => {
+
+                track.enabled =
+                    !track.enabled;
+
+            }
+        );
+
+
+        const apagada =
+            tracks.length &&
+            !tracks[0].enabled;
+
+
+        cameraBtn.textContent =
+            apagada
+            ? "🚫"
+            : "📷";
+
+
+        cameraBtn.classList.toggle(
+            "off",
+            apagada
+        );
+
+    };
+
+
+/* Botones rápidos */
+
+function usuarioParaLlamada(){
+
+    const otros =
+        onlineUsers.filter(
+            u =>
+            u.id !== socket.id
+        );
+
+
+    if(
+        otros.length !== 1
+    ){
+
+        alert(
+            "Selecciona a la persona a la que quieres llamar desde la lista de usuarios."
+        );
+
+        return null;
+    }
+
+
+    return otros[0];
+}
+
+
+quickVoiceCall.onclick =
+    () => {
+
+        const user =
+            usuarioParaLlamada();
+
+
+        if(user){
+
+            iniciarLlamada(
+                user.id,
+                false
+            );
+
+        }
+
+    };
+
+
+quickVideoCall.onclick =
+    () => {
+
+        const user =
+            usuarioParaLlamada();
+
+
+        if(user){
+
+            iniciarLlamada(
+                user.id,
+                true
+            );
+
+        }
+
+    };
+
+
+/* =========================
+   CONEXIÓN
+========================= */
+
+socket.on(
+    "connect",
+    () => {
+
+        console.log(
+            "Conectado:",
+            socket.id
+        );
+
+        status.textContent =
+            "En línea";
+
+    }
+);
+
+
+socket.on(
+    "disconnect",
+    () => {
+
+        status.textContent =
+            "Desconectado";
+
+        terminarLlamada(
+            false
+        );
+
+    }
+);
+
+
+/* =========================
+   PRIMERA CARGA
+========================= */
 
 renderPosts();
 
