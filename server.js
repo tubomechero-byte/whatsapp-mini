@@ -78,6 +78,22 @@ io.on("connection", (socket) => {
         io.emit("system", `${name} se ha conectado`);
     });
 
+    socket.on("delete message", (id) => {
+        const user = users.get(socket.id);
+        if (!user) return;
+
+        let messages = loadJSON(MESSAGES_FILE);
+        const message = messages.find((m) => String(m.id) === String(id));
+        if (!message) return;
+
+        // Solo el autor puede borrar su propio mensaje.
+        if (message.user !== user.name) return;
+
+        messages = messages.filter((m) => String(m.id) !== String(id));
+        saveJSON(MESSAGES_FILE, messages, 1000);
+        io.emit("message deleted", id);
+    });
+
     socket.on("chat message", (text) => {
         const user = users.get(socket.id);
         if (!user) return;
