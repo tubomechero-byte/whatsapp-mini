@@ -33,6 +33,7 @@ const socket = io();
 
 let hasJoined = false;
 let myName = localStorage.getItem("miniName") || "";
+let chatActual = null;
 let onlineUsers = [];
 let currentCall = null;
 let pendingIncomingCall = null;
@@ -111,6 +112,37 @@ socket.on('message deleted',id=>{const el=messages.querySelector(`[data-message-
 function borrarMensaje(id){socket.emit('delete message',id);}
 socket.on('system',text=>{const div=document.createElement('div');div.className='system';div.textContent=text;messages.appendChild(div);messages.scrollTop=messages.scrollHeight;});
 
+function cambiarChat(nombre) {
+    chatActual = nombre;
+    const titulo = document.querySelector('.topTitle');
+    
+    if (nombre === null) {
+        titulo.innerHTML = '🌐 Chat general<div class="status" id="status">Conectado</div>';
+        messages.innerHTML = '<div class="system">Has vuelto al chat general. (Nota: los mensajes anteriores se borraron de la pantalla, recarga la página para verlos).</div>'; 
+    } else {
+        titulo.innerHTML = '🔒 Chat con ' + escapeHtml(nombre) + ' <button onclick="cambiarChat(null)" style="margin-left:10px; padding:2px 5px; font-size:12px; cursor:pointer; background:#25d366; color:white; border:none; border-radius:5px;">Volver al General</button>';
+        messages.innerHTML = '<div class="system">Conversación privada iniciada con ' + escapeHtml(nombre) + '</div>';
+    }
+}
+
+socket.on('private message', m => {
+    if (chatActual === m.from || chatActual === m.to) {
+        const div = document.createElement('div');
+        div.className = 'msg' + (m.from === myName ? ' me' : '');
+        
+        div.innerHTML = `
+            <div class="user">${escapeHtml(m.from)}</div>
+            <div>${escapeHtml(m.text)}</div>
+            <div class="time">${time(m.time)}</div>
+        `;
+        
+        messages.appendChild(div);
+        messages.scrollTop = messages.scrollHeight;
+    } else if (m.from !== myName) {
+        alert('🔒 Tienes un nuevo mensaje privado de ' + m.from);
+    }
+});
+
 function renderUsers(){
     const q=searchPeople.value.trim().toLowerCase();
     people.innerHTML='';
@@ -133,7 +165,7 @@ function renderUsers(){
         const online = Boolean(u.online);
 
         div.innerHTML=`
-            <div class="personInfo">
+            <div class="personInfo" style="cursor:pointer" onclick="cambiarChat('${escapeHtml(u.name)}')">
                 <div class="personName">
                     ${online?'🟢':'⚪'} ${escapeHtml(u.name)}
                 </div>
@@ -171,8 +203,20 @@ function renderUsers(){
 
 searchPeople.addEventListener('input',renderUsers);
 
-socket.on('users',list=>{onlineUsers=Array.isArray(list)?list:[];renderUsers();status.textContent=`${onlineUsers.length} conectado${onlineUsers.length===1?'':'s'}`;});
-form.addEventListener('submit',e=>{e.preventDefault();const text=input.value.trim();if(!text)return;socket.emit('chat message',text);input.value='';});
+socket.on('users',list=>{onlineUsers=Array.isArray(list)?list:[];renderUsers();if(!chatActual){status.textContent=`${onlineUsers.length} conectado${onlineUsers.length===1?'':'s'}`;}});
+
+form.addEventListener('submit', e => {
+    e.preventDefault();
+    const text = input.value.trim();
+    if (!text) return;
+
+    if (chatActual) {
+        socket.emit('private message', { to: chatActual, text: text });
+    } else {
+        socket.emit('chat message', text);
+    }
+    input.value = '';
+});
 
 
 // =========================
