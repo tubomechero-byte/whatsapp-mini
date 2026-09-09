@@ -11,7 +11,7 @@
 </head>
 <body>
 
-<div class="overlay" id="login"><div class="login"><h1>💬 Mini WhatsApp</h1><p>Elige tu nombre para entrar al chat.</p><input id="name" maxlength="24" placeholder="Tu nombre"><button id="enter">Entrar</button></div></div>
+<div class="overlay" id="login"><div class="login"><h1>💬 Mini WhatsApp</h1><p>Elige tu nombre para entrar al chat.</p><input id="name" maxlength="24" placeholder="Tu nombre"><button id="enter" type="button" onclick="enterChat()">Entrar</button></div></div>
 
 <div class="incoming" id="incomingCall"><div class="incomingBox"><div class="incomingAvatar">📞</div><h2 id="incomingName">Usuario</h2><p id="incomingType">Te está llamando</p><div class="incomingButtons"><button class="reject" id="rejectCall">❌ Rechazar</button><button class="accept" id="acceptCall">✅ Aceptar</button></div></div></div>
 
@@ -84,7 +84,12 @@ function enterChat(){
     myName = n;
     saveSavedName(myName);
     login.style.display = 'none';
-    joinServer();
+
+    if(socket.connected){
+        hasJoined = true;
+        socket.emit('join', myName);
+        input.focus();
+    }
 }
 
 enter.onclick = enterChat;
@@ -294,4 +299,7 @@ rejectCall.onclick=()=>{if(pendingIncomingCall)socket.emit('call-rejected',{to:p
 socket.on('call-signal',async data=>{if(!currentCall)return;if(data.type==='answer'&&peerConnection){await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));for(const c of pendingCandidates){try{await peerConnection.addIceCandidate(c);}catch(e){console.error(e);}}pendingCandidates=[];}if(data.type==='candidate'){const c=new RTCIceCandidate(data.candidate);if(peerConnection&&peerConnection.remoteDescription){try{await peerConnection.addIceCandidate(c);}catch(e){console.error(e);}}else pendingCandidates.push(c);}});
 socket.on('call-rejected',()=>{alert('La llamada ha sido rechazada.');terminarLlamada(false);});socket.on('call-ended',()=>terminarLlamada(false));
 hangupBtn.onclick=()=>terminarLlamada(true);
-function terminarLlamada(avisar=true){if(avisar&&currentCall)socket.emit('call-ended',{to:currentCall.targetId});if(peerConnection){peerConnection.close();peerConnection=null;}if(localStream){localStream.getTracks().forEach(t=>t.stop());localStream=null;}remoteSt
+function terminarLlamada(avisar=true){if(avisar&&currentCall)socket.emit('call-ended',{to:currentCall.targetId});if(peerConnection){peerConnection.close();peerConnection=null;}if(localStream){localStream.getTracks().forEach(t=>t.stop());localStream=null;}remoteStream=null;localVideo.srcObject=null;remoteVideo.srcObject=null;currentCall=null;pendingCandidates=[];callScreen.classList.remove('active');incomingCall.classList.remove('active');callStatus.textContent='Conectando...';muteBtn.textContent='🎤';cameraBtn.textContent='📷';muteBtn.classList.remove('off');cameraBtn.classList.remove('off');}
+muteBtn.onclick=()=>{if(!localStream)return;localStream.getAudioTracks().forEach(t=>t.enabled=!t.enabled);const off=localStream.getAudioTracks()[0]&&!localStream.getAudioTracks()[0].enabled;muteBtn.textContent=off?'🔇':'🎤';muteBtn.classList.toggle('off',off);};
+cameraBtn.onclick=()=>{if(!localStream)return;localStream.getVideoTracks().forEach(t=>t.enabled=!t.enabled);const off=localStream.getVideoTracks()[0]&&!localStream.getVideoTracks()[0].enabled;cameraBtn.textContent=off?'🚫':'📷';cameraBtn.classList.toggle('off',off);};
+function unicoOtro(){const x=onlineUsers.filter(u=>u.id!==sock
