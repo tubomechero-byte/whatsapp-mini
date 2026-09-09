@@ -3,143 +3,1235 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Mini WhatsApp</title>
+<title>Mini WhatsApp + FotoApp</title>
 <script src="/socket.io/socket.io.js"></script>
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#d9dbd5;height:100vh;display:flex;justify-content:center;align-items:center}
-.app{width:min(100%,1000px);height:94vh;background:#efeae2;display:flex;overflow:hidden;box-shadow:0 8px 30px #0002;border-radius:12px}
-aside{width:310px;background:#fff;border-right:1px solid #ddd;display:flex;flex-direction:column}
-.sideHead{background:#f0f2f5;padding:16px;font-weight:bold;display:flex;justify-content:space-between}
-.search{margin:10px;padding:10px 14px;border:0;background:#f0f2f5;border-radius:20px;outline:0}
-.people{padding:10px 16px;color:#555;overflow:auto}
-.person{padding:9px 0;border-bottom:1px solid #eee}
-.chat{flex:1;display:flex;flex-direction:column}
-.top{background:#f0f2f5;padding:15px 20px;font-weight:bold;border-bottom:1px solid #ddd}
-.status{font-size:12px;color:#667781;font-weight:normal;margin-top:3px}
-.messages{flex:1;overflow:auto;padding:20px;background:
-radial-gradient(#fff8 1px,transparent 1px);background-size:18px 18px}
-.msg{max-width:75%;padding:9px 12px;margin:7px 0;border-radius:10px;background:#fff;box-shadow:0 1px 1px #0001}
-.msg.me{margin-left:auto;background:#d9fdd3}
-.msg .user{font-size:12px;font-weight:bold;color:#0b7b6c;margin-bottom:3px}
-.msg .time{font-size:10px;color:#667781;text-align:right;margin-top:4px}
-.system{text-align:center;color:#667781;font-size:12px;margin:8px}
-.form{background:#f0f2f5;padding:10px;display:flex;gap:8px}
-.form input{flex:1;border:0;border-radius:22px;padding:13px 16px;outline:0;font-size:15px}
-.form button{border:0;border-radius:50%;width:45px;height:45px;background:#25d366;color:#fff;font-size:18px;cursor:pointer}
-.overlay{position:fixed;inset:0;background:#0007;display:flex;align-items:center;justify-content:center}
-.login{background:white;padding:28px;border-radius:16px;width:min(90%,380px)}
-.login h1{margin-top:0}
-.login input{width:100%;padding:12px;border:1px solid #ccc;border-radius:8px}
-.login button{width:100%;margin-top:12px;padding:12px;border:0;border-radius:8px;background:#25d366;color:white;font-weight:bold;cursor:pointer}
+
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#d9dbd5;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.app{
+    width:min(100%,1000px);
+    height:94vh;
+    background:#efeae2;
+    display:flex;
+    overflow:hidden;
+    box-shadow:0 8px 30px #0002;
+    border-radius:12px;
+}
+
+/* MENÚ */
+
+.menu{
+    width:70px;
+    background:#111;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding-top:15px;
+    gap:12px;
+}
+
+.menu button{
+    width:50px;
+    height:50px;
+    border:0;
+    border-radius:12px;
+    background:#222;
+    color:white;
+    font-size:23px;
+    cursor:pointer;
+}
+
+.menu button.active{
+    background:#25d366;
+}
+
+/* PANTALLAS */
+
+.screen{
+    flex:1;
+    display:none;
+}
+
+.screen.active{
+    display:flex;
+}
+
+/* WHATSAPP */
+
+.whatsapp{
+    width:100%;
+}
+
+aside{
+    width:310px;
+    background:#fff;
+    border-right:1px solid #ddd;
+    display:flex;
+    flex-direction:column;
+}
+
+.sideHead{
+    background:#f0f2f5;
+    padding:16px;
+    font-weight:bold;
+    display:flex;
+    justify-content:space-between;
+}
+
+.search{
+    margin:10px;
+    padding:10px 14px;
+    border:0;
+    background:#f0f2f5;
+    border-radius:20px;
+    outline:0;
+}
+
+.people{
+    padding:10px 16px;
+    color:#555;
+    overflow:auto;
+}
+
+.person{
+    padding:9px 0;
+    border-bottom:1px solid #eee;
+}
+
+.chat{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+}
+
+.top{
+    background:#f0f2f5;
+    padding:15px 20px;
+    font-weight:bold;
+    border-bottom:1px solid #ddd;
+}
+
+.status{
+    font-size:12px;
+    color:#667781;
+    font-weight:normal;
+    margin-top:3px;
+}
+
+.messages{
+    flex:1;
+    overflow:auto;
+    padding:20px;
+    background:
+    radial-gradient(#fff8 1px,transparent 1px);
+    background-size:18px 18px;
+}
+
+.msg{
+    max-width:75%;
+    padding:9px 12px;
+    margin:7px 0;
+    border-radius:10px;
+    background:#fff;
+    box-shadow:0 1px 1px #0001;
+}
+
+.msg.me{
+    margin-left:auto;
+    background:#d9fdd3;
+}
+
+.msg .user{
+    font-size:12px;
+    font-weight:bold;
+    color:#0b7b6c;
+    margin-bottom:3px;
+}
+
+.msg .time{
+    font-size:10px;
+    color:#667781;
+    text-align:right;
+    margin-top:4px;
+}
+
+.system{
+    text-align:center;
+    color:#667781;
+    font-size:12px;
+    margin:8px;
+}
+
+.form{
+    background:#f0f2f5;
+    padding:10px;
+    display:flex;
+    gap:8px;
+}
+
+.form input{
+    flex:1;
+    border:0;
+    border-radius:22px;
+    padding:13px 16px;
+    outline:0;
+    font-size:15px;
+}
+
+.form button{
+    border:0;
+    border-radius:50%;
+    width:45px;
+    height:45px;
+    background:#25d366;
+    color:#fff;
+    font-size:18px;
+    cursor:pointer;
+}
+
+/* FOTOAPP */
+
+.social{
+    width:100%;
+    background:#f2f2f2;
+    overflow:auto;
+    display:flex;
+    flex-direction:column;
+}
+
+.socialHeader{
+    background:white;
+    padding:16px 20px;
+    border-bottom:1px solid #ddd;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.socialHeader h1{
+    margin:0;
+    font-size:24px;
+}
+
+.publishTop{
+    background:#000;
+    color:white;
+    border:0;
+    border-radius:20px;
+    padding:10px 17px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.publisher{
+    background:white;
+    max-width:600px;
+    width:calc(100% - 20px);
+    margin:15px auto;
+    padding:15px;
+    border-radius:12px;
+    box-shadow:0 2px 8px #0001;
+}
+
+.publisher h2{
+    margin:0 0 12px;
+    font-size:19px;
+}
+
+.publisher input[type=file]{
+    width:100%;
+    margin-bottom:10px;
+}
+
+.publisher textarea{
+    width:100%;
+    height:70px;
+    resize:none;
+    border:1px solid #ccc;
+    border-radius:8px;
+    padding:10px;
+    font-family:Arial;
+    margin-bottom:10px;
+}
+
+.postBtn{
+    width:100%;
+    background:#000;
+    color:white;
+    border:0;
+    padding:12px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.feed{
+    width:100%;
+}
+
+.post{
+    max-width:600px;
+    width:calc(100% - 20px);
+    margin:0 auto 20px;
+    background:white;
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 2px 8px #0001;
+}
+
+.postHeader{
+    padding:12px 15px;
+    display:flex;
+    justify-content:space-between;
+    font-weight:bold;
+}
+
+.postHeader button{
+    background:none;
+    border:0;
+    cursor:pointer;
+    font-size:18px;
+}
+
+.post img,
+.post video{
+    width:100%;
+    display:block;
+    max-height:600px;
+    object-fit:cover;
+}
+
+.postContent{
+    padding:12px 15px;
+}
+
+.description{
+    margin-bottom:10px;
+    line-height:1.4;
+}
+
+.actions{
+    display:flex;
+    gap:15px;
+    align-items:center;
+}
+
+.actionBtn{
+    background:none;
+    border:0;
+    cursor:pointer;
+    font-size:20px;
+}
+
+.likes{
+    font-weight:bold;
+}
+
+.commentInput{
+    width:100%;
+    margin-top:10px;
+    border:1px solid #ddd;
+    border-radius:8px;
+    padding:9px;
+}
+
+.comment{
+    margin-top:8px;
+    padding:7px;
+    background:#f5f5f5;
+    border-radius:7px;
+    font-size:14px;
+}
+
+.empty{
+    text-align:center;
+    padding:30px;
+    color:#777;
+}
+
+/* LOGIN */
+
+.overlay{
+    position:fixed;
+    inset:0;
+    background:#0007;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:100;
+}
+
+.login{
+    background:white;
+    padding:28px;
+    border-radius:16px;
+    width:min(90%,380px);
+}
+
+.login h1{
+    margin-top:0;
+}
+
+.login input{
+    width:100%;
+    padding:12px;
+    border:1px solid #ccc;
+    border-radius:8px;
+}
+
+.login button{
+    width:100%;
+    margin-top:12px;
+    padding:12px;
+    border:0;
+    border-radius:8px;
+    background:#25d366;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+/* MÓVIL */
+
 @media(max-width:700px){
- body{align-items:stretch}
- .app{height:100vh;width:100%;border-radius:0}
- aside{width:115px}
- .sideHead span{display:none}
- .person{font-size:13px}
- .people{padding:8px}
+
+    body{
+        align-items:stretch;
+    }
+
+    .app{
+        width:100%;
+        height:100vh;
+        border-radius:0;
+    }
+
+    .menu{
+        width:58px;
+    }
+
+    .menu button{
+        width:44px;
+        height:44px;
+    }
+
+    aside{
+        width:115px;
+    }
+
+    .sideHead span{
+        display:none;
+    }
+
+    .person{
+        font-size:13px;
+    }
+
+    .people{
+        padding:8px;
+    }
 }
 </style>
 </head>
+
 <body>
+
+<!-- LOGIN -->
+
 <div class="overlay" id="login">
-  <div class="login">
-    <h1>💬 Mini WhatsApp</h1>
-    <p>Elige tu nombre para entrar al chat.</p>
-    <input id="name" maxlength="24" placeholder="Tu nombre">
-    <button id="enter">Entrar</button>
-  </div>
+
+    <div class="login">
+
+        <h1>💬 Mini WhatsApp</h1>
+
+        <p>Elige tu nombre para entrar al chat.</p>
+
+        <input
+            id="name"
+            maxlength="24"
+            placeholder="Tu nombre"
+        >
+
+        <button id="enter">
+            Entrar
+        </button>
+
+    </div>
+
 </div>
+
 
 <div class="app">
-  <aside>
-    <div class="sideHead"><span>Chats</span>🟢</div>
-    <input class="search" placeholder="Buscar">
-    <div class="people" id="people">Conectando...</div>
-  </aside>
-  <section class="chat">
-    <div class="top">
-      🌐 Chat general
-      <div class="status" id="status">Conecta para empezar</div>
-    </div>
-    <div class="messages" id="messages"></div>
-    <form class="form" id="form">
-      <input id="input" autocomplete="off" placeholder="Escribe un mensaje...">
-      <button>➤</button>
-    </form>
-  </section>
+
+    <!-- MENÚ -->
+
+    <nav class="menu">
+
+        <button id="whatsappBtn"
+                class="active"
+                onclick="mostrarPantalla('whatsapp')">
+            💬
+        </button>
+
+        <button id="socialBtn"
+                onclick="mostrarPantalla('social')">
+            📸
+        </button>
+
+    </nav>
+
+
+    <!-- WHATSAPP -->
+
+    <section class="screen active whatsapp" id="whatsapp">
+
+        <aside>
+
+            <div class="sideHead">
+                <span>Chats</span>
+                🟢
+            </div>
+
+            <input
+                class="search"
+                placeholder="Buscar"
+            >
+
+            <div class="people" id="people">
+                Conectando...
+            </div>
+
+        </aside>
+
+
+        <section class="chat">
+
+            <div class="top">
+
+                🌐 Chat general
+
+                <div
+                    class="status"
+                    id="status">
+                    Conecta para empezar
+                </div>
+
+            </div>
+
+
+            <div
+                class="messages"
+                id="messages">
+            </div>
+
+
+            <form
+                class="form"
+                id="form">
+
+                <input
+                    id="input"
+                    autocomplete="off"
+                    placeholder="Escribe un mensaje..."
+                >
+
+                <button>➤</button>
+
+            </form>
+
+        </section>
+
+    </section>
+
+
+    <!-- FOTOAPP -->
+
+    <section class="screen social" id="social">
+
+        <header class="socialHeader">
+
+            <h1>📸 FotoApp</h1>
+
+            <button
+                class="publishTop"
+                onclick="document.getElementById('fileInput').click()">
+                + Publicar
+            </button>
+
+        </header>
+
+
+        <div class="publisher">
+
+            <h2>Crear publicación</h2>
+
+            <input
+                type="file"
+                id="fileInput"
+                accept="image/*,video/*"
+            >
+
+            <textarea
+                id="description"
+                placeholder="Escribe algo...">
+            </textarea>
+
+            <button
+                class="postBtn"
+                onclick="crearPublicacion()">
+                Publicar
+            </button>
+
+        </div>
+
+
+        <div
+            class="feed"
+            id="feed">
+        </div>
+
+    </section>
+
 </div>
 
-<script>
-const socket = io();
-let myName = localStorage.getItem("miniName") || "";
 
-const login = document.getElementById("login");
-const nameInput = document.getElementById("name");
-const enter = document.getElementById("enter");
-const messages = document.getElementById("messages");
-const form = document.getElementById("form");
-const input = document.getElementById("input");
-const people = document.getElementById("people");
-const status = document.getElementById("status");
+<script>
+
+/* =========================
+   CAMBIAR PANTALLA
+========================= */
+
+function mostrarPantalla(pantalla){
+
+    document
+        .querySelectorAll(".screen")
+        .forEach(x => x.classList.remove("active"));
+
+    document
+        .getElementById(pantalla)
+        .classList.add("active");
+
+    document
+        .querySelectorAll(".menu button")
+        .forEach(x => x.classList.remove("active"));
+
+    if(pantalla === "whatsapp"){
+        document
+            .getElementById("whatsappBtn")
+            .classList.add("active");
+    }
+
+    if(pantalla === "social"){
+        document
+            .getElementById("socialBtn")
+            .classList.add("active");
+    }
+}
+
+
+/* =========================
+   WHATSAPP
+========================= */
+
+const socket = io();
+
+let myName =
+    localStorage.getItem("miniName") || "";
+
+const login =
+    document.getElementById("login");
+
+const nameInput =
+    document.getElementById("name");
+
+const enter =
+    document.getElementById("enter");
+
+const messages =
+    document.getElementById("messages");
+
+const form =
+    document.getElementById("form");
+
+const input =
+    document.getElementById("input");
+
+const people =
+    document.getElementById("people");
+
+const status =
+    document.getElementById("status");
+
 
 function escapeHtml(s){
-  return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+
+    return s.replace(
+        /[&<>"']/g,
+        c => ({
+            "&":"&amp;",
+            "<":"&lt;",
+            ">":"&gt;",
+            '"':"&quot;",
+            "'":"&#039;"
+        }[c])
+    );
+
 }
+
+
 function time(iso){
-  return new Date(iso).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
+
+    return new Date(iso)
+        .toLocaleTimeString(
+            [],
+            {
+                hour:"2-digit",
+                minute:"2-digit"
+            }
+        );
+
 }
+
+
 function addMessage(m){
-  const div=document.createElement("div");
-  div.className="msg"+(m.user===myName?" me":"");
-  div.innerHTML=`<div class="user">${escapeHtml(m.user)}</div>
-                 <div>${escapeHtml(m.text)}</div>
-                 <div class="time">${time(m.time)}</div>`;
-  messages.appendChild(div);
-  messages.scrollTop=messages.scrollHeight;
+
+    const div =
+        document.createElement("div");
+
+    div.className =
+        "msg" +
+        (m.user === myName ? " me" : "");
+
+    div.innerHTML = `
+        <div class="user">
+            ${escapeHtml(m.user)}
+        </div>
+
+        <div>
+            ${escapeHtml(m.text)}
+        </div>
+
+        <div class="time">
+            ${time(m.time)}
+        </div>
+    `;
+
+    messages.appendChild(div);
+
+    messages.scrollTop =
+        messages.scrollHeight;
+
 }
+
+
 function enterChat(){
-  const n=nameInput.value.trim();
-  if(!n) return;
-  myName=n.slice(0,24);
-  localStorage.setItem("miniName",myName);
-  login.style.display="none";
-  socket.emit("join",myName);
-  status.textContent="En línea";
-  input.focus();
+
+    const n =
+        nameInput.value.trim();
+
+    if(!n) return;
+
+    myName =
+        n.slice(0,24);
+
+    localStorage.setItem(
+        "miniName",
+        myName
+    );
+
+    login.style.display =
+        "none";
+
+    socket.emit(
+        "join",
+        myName
+    );
+
+    status.textContent =
+        "En línea";
+
+    input.focus();
+
 }
-enter.onclick=enterChat;
-nameInput.addEventListener("keydown",e=>{if(e.key==="Enter")enterChat()});
+
+
+enter.onclick =
+    enterChat;
+
+
+nameInput.addEventListener(
+    "keydown",
+    e => {
+
+        if(e.key === "Enter")
+            enterChat();
+
+    }
+);
+
 
 if(myName){
-  nameInput.value=myName;
-  enterChat();
+
+    nameInput.value =
+        myName;
+
+    enterChat();
+
 }
 
-socket.on("history", list=>list.forEach(addMessage));
-socket.on("chat message", addMessage);
-socket.on("system", text=>{
-  const div=document.createElement("div");
-  div.className="system";
-  div.textContent=text;
-  messages.appendChild(div);
-  messages.scrollTop=messages.scrollHeight;
-});
-socket.on("users", list=>{
-  people.innerHTML = list.length
-    ? list.map(u=>`<div class="person">🟢 ${escapeHtml(u)}</div>`).join("")
-    : "Nadie conectado";
-  status.textContent = `${list.length} conectado${list.length===1?"":"s"}`;
-});
 
-form.addEventListener("submit",e=>{
-  e.preventDefault();
-  const text=input.value.trim();
-  if(!text) return;
-  socket.emit("chat message",text);
-  input.value="";
-});
+socket.on(
+    "history",
+    list => list.forEach(addMessage)
+);
+
+
+socket.on(
+    "chat message",
+    addMessage
+);
+
+
+socket.on(
+    "system",
+    text => {
+
+        const div =
+            document.createElement("div");
+
+        div.className =
+            "system";
+
+        div.textContent =
+            text;
+
+        messages.appendChild(div);
+
+        messages.scrollTop =
+            messages.scrollHeight;
+
+    }
+);
+
+
+socket.on(
+    "users",
+    list => {
+
+        people.innerHTML =
+            list.length
+
+            ? list
+                .map(
+                    u =>
+                    `<div class="person">
+                        🟢 ${escapeHtml(u)}
+                     </div>`
+                )
+                .join("")
+
+            : "Nadie conectado";
+
+        status.textContent =
+            `${list.length} conectado${list.length === 1 ? "" : "s"}`;
+
+    }
+);
+
+
+form.addEventListener(
+    "submit",
+    e => {
+
+        e.preventDefault();
+
+        const text =
+            input.value.trim();
+
+        if(!text) return;
+
+        socket.emit(
+            "chat message",
+            text
+        );
+
+        input.value = "";
+
+    }
+);
+
+
+/* =========================
+   FOTOAPP
+========================= */
+
+const feed =
+    document.getElementById("feed");
+
+
+function crearPublicacion(){
+
+    const fileInput =
+        document.getElementById("fileInput");
+
+    const description =
+        document.getElementById("description");
+
+    if(
+        fileInput.files.length === 0
+    ){
+
+        alert(
+            "Selecciona una foto o vídeo."
+        );
+
+        return;
+
+    }
+
+
+    const file =
+        fileInput.files[0];
+
+    const texto =
+        description.value.trim();
+
+
+    const reader =
+        new FileReader();
+
+
+    reader.onload =
+        function(event){
+
+            const post = {
+
+                id:Date.now(),
+
+                tipo:
+                    file.type.startsWith("video")
+                    ? "video"
+                    : "imagen",
+
+                archivo:
+                    event.target.result,
+
+                descripcion:
+                    texto,
+
+                likes:0,
+
+                comentarios:[]
+
+            };
+
+
+            const publicaciones =
+                JSON.parse(
+                    localStorage.getItem(
+                        "publicaciones"
+                    )
+                ) || [];
+
+
+            publicaciones.unshift(post);
+
+
+            localStorage.setItem(
+                "publicaciones",
+                JSON.stringify(
+                    publicaciones
+                )
+            );
+
+
+            fileInput.value = "";
+
+            description.value = "";
+
+
+            mostrarPublicaciones();
+
+        };
+
+
+    reader.readAsDataURL(file);
+
+}
+
+
+function mostrarPublicaciones(){
+
+    feed.innerHTML = "";
+
+
+    const publicaciones =
+        JSON.parse(
+            localStorage.getItem(
+                "publicaciones"
+            )
+        ) || [];
+
+
+    if(
+        publicaciones.length === 0
+    ){
+
+        feed.innerHTML = `
+            <div class="empty">
+                Todavía no hay publicaciones.
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    publicaciones.forEach(
+        post => {
+
+            const elemento =
+                document.createElement(
+                    "article"
+                );
+
+            elemento.className =
+                "post";
+
+
+            let media = "";
+
+
+            if(post.tipo === "video"){
+
+                media = `
+                    <video controls>
+                        <source src="${post.archivo}">
+                    </video>
+                `;
+
+            }
+            else{
+
+                media = `
+                    <img
+                        src="${post.archivo}"
+                        alt="Publicación">
+                `;
+
+            }
+
+
+            elemento.innerHTML = `
+
+                <div class="postHeader">
+
+                    <span>
+                        👤 Anónimo
+                    </span>
+
+                    <button
+                        onclick="eliminarPublicacion(${post.id})">
+                        🗑️
+                    </button>
+
+                </div>
+
+
+                ${media}
+
+
+                <div class="postContent">
+
+                    <div class="description">
+                        ${escapeHtml(
+                            post.descripcion
+                        )}
+                    </div>
+
+
+                    <div class="actions">
+
+                        <button
+                            class="actionBtn"
+                            onclick="darLike(${post.id})">
+                            ❤️
+                        </button>
+
+                        <span class="likes">
+                            ${post.likes} me gusta
+                        </span>
+
+                    </div>
+
+
+                    <input
+                        class="commentInput"
+                        placeholder="Escribe un comentario..."
+                        onkeydown="comentar(event, ${post.id})"
+                    >
+
+
+                    <div>
+
+                        ${
+                            post.comentarios
+                            .map(
+                                c =>
+                                `<div class="comment">
+                                    👤 Anónimo:
+                                    ${escapeHtml(c)}
+                                </div>`
+                            )
+                            .join("")
+                        }
+
+                    </div>
+
+                </div>
+
+            `;
+
+
+            feed.appendChild(
+                elemento
+            );
+
+        }
+    );
+
+}
+
+
+function darLike(id){
+
+    const publicaciones =
+        JSON.parse(
+            localStorage.getItem(
+                "publicaciones"
+            )
+        ) || [];
+
+
+    const post =
+        publicaciones.find(
+            p => p.id === id
+        );
+
+
+    if(post){
+
+        post.likes++;
+
+    }
+
+
+    localStorage.setItem(
+        "publicaciones",
+        JSON.stringify(
+            publicaciones
+        )
+    );
+
+
+    mostrarPublicaciones();
+
+}
+
+
+function comentar(event,id){
+
+    if(
+        event.key !== "Enter"
+    ) return;
+
+
+    const texto =
+        event.target.value.trim();
+
+
+    if(!texto) return;
+
+
+    const publicaciones =
+        JSON.parse(
+            localStorage.getItem(
+                "publicaciones"
+            )
+        ) || [];
+
+
+    const post =
+        publicaciones.find(
+            p => p.id === id
+        );
+
+
+    if(post){
+
+        post.comentarios.push(
+            texto
+        );
+
+    }
+
+
+    localStorage.setItem(
+        "publicaciones",
+        JSON.stringify(
+            publicaciones
+        )
+    );
+
+
+    mostrarPublicaciones();
+
+}
+
+
+function eliminarPublicacion(id){
+
+    const publicaciones =
+        JSON.parse(
+            localStorage.getItem(
+                "publicaciones"
+            )
+        ) || [];
+
+
+    const nuevas =
+        publicaciones.filter(
+            p => p.id !== id
+        );
+
+
+    localStorage.setItem(
+        "publicaciones",
+        JSON.stringify(
+            nuevas
+        )
+    );
+
+
+    mostrarPublicaciones();
+
+}
+
+
+mostrarPublicaciones();
+
 </script>
+
 </body>
 </html>
