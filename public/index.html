@@ -49,15 +49,18 @@ const messages=document.getElementById('messages'),form=document.getElementById(
 function time(iso){return new Date(iso).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}
 function addMessage(m){const div=document.createElement('div');div.className='msg'+(m.user===myName?' me':'');div.dataset.messageId=m.id;const borrar=m.user===myName?`<button onclick="borrarMensaje('${m.id}')" style="float:right;border:0;background:none;cursor:pointer;margin-left:8px;font-size:14px" title="Borrar mensaje">🗑️</button>`:'';div.innerHTML=`${borrar}<div class="user">${escapeHtml(m.user)}</div><div>${escapeHtml(m.text)}</div><div class="time">${time(m.time)}</div>`;messages.appendChild(div);messages.scrollTop=messages.scrollHeight;}
 
+let hasJoined=false;
+
 function enterChat(){
     const n=nameInput.value.trim();
     if(!n) return;
 
     myName=n.slice(0,24);
     localStorage.setItem('miniName',myName);
+
     login.style.display='none';
 
-    if(socket.connected){
+    if(socket.connected && !hasJoined){
         hasJoined=true;
         socket.emit('join',myName);
     }
@@ -66,7 +69,16 @@ function enterChat(){
 }
 
 enter.onclick=enterChat;
-nameInput.addEventListener('keydown',e=>{if(e.key==='Enter')enterChat();});
+
+nameInput.addEventListener('keydown',e=>{
+    if(e.key==='Enter') enterChat();
+});
+
+// Recuperar el nombre automáticamente
+if(myName){
+    nameInput.value=myName;
+    login.style.display='none';
+}
 
 socket.on('history',list=>{messages.innerHTML='';list.forEach(addMessage);});
 socket.on('chat message',addMessage);
@@ -177,175 +189,21 @@ function unicoOtro(){const x=onlineUsers.filter(u=>u.id!==socket.id);if(x.length
 document.getElementById('quickVoiceCall').onclick=()=>{const u=unicoOtro();if(u)iniciarLlamada(u.id,false);};
 document.getElementById('quickVideoCall').onclick=()=>{const u=unicoOtro();if(u)iniciarLlamada(u.id,true);};
 
-let hasJoined = false;
-
-function joinWithSavedName(){
-    if(!myName || hasJoined) return;
-
-    hasJoined = true;
-    login.style.display='none';
-    socket.emit('join', myName);
-    input.focus();
-}
-
 socket.on('connect',()=>{
     status.textContent='En línea';
-    joinWithSavedName();
-});
 
-socket.on('disconnect',()=>{
-    status.textContent='Desconectado';
-    hasJoined = false;
-    terminarLlamada(false);
-});
-
-if(myName && socket.connected){
-    joinWithSavedName();
-}
-
-renderPosts();
-</script>
-</body>
-</html>    input.focus();
-}
-
-enter.onclick=enterChat;
-nameInput.addEventListener('keydown',e=>{if(e.key==='Enter')enterChat();});
-
-socket.on('history',list=>{messages.innerHTML='';list.forEach(addMessage);});
-socket.on('chat message',addMessage);
-socket.on('message deleted',id=>{const el=messages.querySelector(`[data-message-id="${id}"]`);if(el)el.remove();});
-function borrarMensaje(id){socket.emit('delete message',id);}
-socket.on('system',text=>{const div=document.createElement('div');div.className='system';div.textContent=text;messages.appendChild(div);messages.scrollTop=messages.scrollHeight;});
-
-function renderUsers(){const q=searchPeople.value.trim().toLowerCase();people.innerHTML='';const users=onlineUsers.filter(u=>u.name.toLowerCase().includes(q));if(!users.length){people.textContent='Nadie conectado';return;}users.forEach(u=>{if(u.id===socket.id)return;const div=document.createElement('div');div.className='person';div.innerHTML=`<div class="personInfo"><div class="personName">🟢 ${escapeHtml(u.name)}</div><div class="personOnline">En línea</div></div><div class="callButtons"><button class="voiceCallBtn" title="Llamar">📞</button><button class="videoCallBtn" title="Videollamada">📹</button></div>`;div.querySelector('.voiceCallBtn').onclick=()=>iniciarLlamada(u.id,false);div.querySelector('.videoCallBtn').onclick=()=>iniciarLlamada(u.id,true);people.appendChild(div);});}
-searchPeople.addEventListener('input',renderUsers);
-
-socket.on('users',list=>{onlineUsers=Array.isArray(list)?list:[];renderUsers();status.textContent=`${onlineUsers.length} conectado${onlineUsers.length===1?'':'s'}`;});
-form.addEventListener('submit',e=>{e.preventDefault();const text=input.value.trim();if(!text)return;socket.emit('chat message',text);input.value='';});
-
-
-// =========================
-// NOTIFICACIONES PUSH
-// =========================
-const notificationBtn = document.getElementById('notificationBtn');
-
-async function activarNotificaciones(){
-    try{
-        if(!('serviceWorker' in navigator) || !('PushManager' in window)){
-            alert('Este navegador no permite notificaciones push.');
-            return;
-        }
-
-        if(!window.isSecureContext){
-            alert('Las notificaciones necesitan HTTPS. En localhost funcionan para las pruebas.');
-            return;
-        }
-
-        const permission = await Notification.requestPermission();
-        if(permission !== 'granted'){
-            alert('Has bloqueado las notificaciones. Puedes activarlas desde los permisos del navegador.');
-            return;
-        }
-
-        const registration = await navigator.serviceWorker.register('/sw.js');
-        await navigator.serviceWorker.ready;
-
-        const keyResponse = await fetch('/api/vapid-public-key');
-        const { publicKey } = await keyResponse.json();
-
-        let subscription = await registration.pushManager.getSubscription();
-
-        if(!subscription){
-            subscription = await registration.pushManager.subscribe({
-                userVisibleOnly: true,
-                applicationServerKey: urlBase64ToUint8Array(publicKey)
-            });
-        }
-
-        socket.emit('subscribe-push', {
-            name: myName,
-            subscription: subscription.toJSON()
-        });
-
-        notificationBtn.textContent = '🔔';
-        notificationBtn.title = 'Notificaciones activadas';
-        alert('Notificaciones activadas.');
-
-    }catch(error){
-        console.error('Error activando notificaciones:', error);
-        alert('No se pudieron activar las notificaciones.');
+    if(myName && !hasJoined){
+        hasJoined=true;
+        socket.emit('join',myName);
+        input.focus();
     }
-}
-
-function urlBase64ToUint8Array(base64String){
-    const padding = '='.repeat((4 - base64String.length % 4) % 4);
-    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-    const rawData = atob(base64);
-    return Uint8Array.from([...rawData].map(char => char.charCodeAt(0)));
-}
-
-if(notificationBtn){
-    notificationBtn.addEventListener('click', activarNotificaciones);
-}
-
-// FotoApp
-const feed=document.getElementById('feed'),postError=document.getElementById('postError');let publicaciones=[];
-function mostrarError(t){postError.textContent=t;postError.style.display='block';setTimeout(()=>postError.style.display='none',4000);}
-function renderPosts(){feed.innerHTML='';if(!publicaciones.length){feed.innerHTML='<div class="empty">Todavía no hay publicaciones.</div>';return;}[...publicaciones].reverse().forEach(post=>{const el=document.createElement('article');el.className='post';const media=post.tipo==='video'?`<video controls preload="metadata"><source src="${post.archivo}"></video>`:`<img src="${post.archivo}" alt="Publicación">`;const cs=Array.isArray(post.comentarios)?post.comentarios:[];el.innerHTML=`<div class="postHeader"><span>👤 ${escapeHtml(post.autor||'Usuario')}</span><button onclick="eliminarPublicacion('${post.id}')">🗑️</button></div>${media}<div class="postContent">${post.descripcion?`<div class="description">${escapeHtml(post.descripcion)}</div>`:''}<div class="actions"><button class="actionBtn" onclick="darLike('${post.id}')">❤️</button><span class="likes">${post.likes||0} me gusta</span></div><input class="commentInput" maxlength="500" placeholder="Escribe un comentario..." onkeydown="comentar(event,'${post.id}')"><div>${cs.map(c=>typeof c==='string'?`<div class="comment">👤 Usuario: ${escapeHtml(c)}</div>`:`<div class="comment">👤 ${escapeHtml(c.autor||'Usuario')}: ${escapeHtml(c.texto||'')}</div>`).join('')}</div></div>`;feed.appendChild(el);});}
-socket.on('posts history',posts=>{publicaciones=Array.isArray(posts)?posts:[];renderPosts();});
-socket.on('new post',post=>{if(!publicaciones.some(p=>String(p.id)===String(post.id)))publicaciones.push(post);renderPosts();});
-socket.on('post error',mostrarError);
-function crearPublicacion(){const fi=document.getElementById('fileInput'),d=document.getElementById('description');if(!fi.files.length){mostrarError('Selecciona una foto o vídeo.');return;}const file=fi.files[0];if(file.size>20*1024*1024){mostrarError('El archivo supera los 20 MB.');return;}const r=new FileReader();r.onload=()=>{socket.emit('new post',{tipo:file.type.startsWith('video')?'video':'imagen',archivo:r.result,descripcion:d.value.trim()});fi.value='';d.value='';};r.onerror=()=>mostrarError('No se pudo leer el archivo.');r.readAsDataURL(file);}
-socket.on('post updated',post=>{const i=publicaciones.findIndex(p=>String(p.id)===String(post.id));if(i!==-1)publicaciones[i]=post;else publicaciones.push(post);renderPosts();});
-function darLike(id){socket.emit('like post',id);}function comentar(e,id){if(e.key!=='Enter')return;const texto=e.target.value.trim();if(!texto)return;socket.emit('comment post',{id,comentario:texto});e.target.value='';}socket.on('post deleted',id=>{publicaciones=publicaciones.filter(p=>String(p.id)!==String(id));renderPosts();});function eliminarPublicacion(id){socket.emit('delete post',id);}
-
-// Llamadas
-const callScreen=document.getElementById('callScreen'),callStatus=document.getElementById('callStatus'),localVideo=document.getElementById('localVideo'),remoteVideo=document.getElementById('remoteVideo'),remoteLabel=document.getElementById('remoteLabel'),muteBtn=document.getElementById('muteBtn'),cameraBtn=document.getElementById('cameraBtn'),hangupBtn=document.getElementById('hangupBtn'),incomingCall=document.getElementById('incomingCall'),incomingName=document.getElementById('incomingName'),incomingType=document.getElementById('incomingType'),acceptCall=document.getElementById('acceptCall'),rejectCall=document.getElementById('rejectCall');
-function getUserById(id){return onlineUsers.find(u=>u.id===id);}
-function createPeerConnection(targetId){const pc=new RTCPeerConnection(rtcConfig);pc.onicecandidate=e=>{if(e.candidate)socket.emit('call-signal',{to:targetId,type:'candidate',candidate:e.candidate});};pc.ontrack=e=>{if(!remoteStream)remoteStream=new MediaStream();e.streams[0].getTracks().forEach(t=>{if(!remoteStream.getTracks().some(x=>x.id===t.id))remoteStream.addTrack(t);});remoteVideo.srcObject=remoteStream;};pc.onconnectionstatechange=()=>{if(pc.connectionState==='connected')callStatus.textContent='Llamada conectada';if(['disconnected','failed','closed'].includes(pc.connectionState))terminarLlamada(false);};return pc;}
-function mostrarLlamada(){callScreen.classList.add('active');}
-async function obtenerMedia(video){try{localStream=await navigator.mediaDevices.getUserMedia({audio:true,video});localVideo.srcObject=localStream;document.getElementById('remoteBox').style.display=video?'block':'none';cameraBtn.style.display=video?'block':'none';return true;}catch(e){console.error(e);alert('No se pudo acceder al micrófono o la cámara. Revisa los permisos del navegador.');return false;}}
-async function iniciarLlamada(targetId,video){if(currentCall||targetId===socket.id)return;const user=getUserById(targetId);if(!user){alert('Ese usuario ya no está conectado.');return;}currentCall={targetId,video,caller:true};remoteLabel.textContent=user.name;callStatus.textContent=`Llamando a ${user.name}...`;mostrarLlamada();if(!await obtenerMedia(video)){terminarLlamada(false);return;}peerConnection=createPeerConnection(targetId);localStream.getTracks().forEach(t=>peerConnection.addTrack(t,localStream));const offer=await peerConnection.createOffer();await peerConnection.setLocalDescription(offer);socket.emit('call-user',{to:targetId,fromName:myName,video,offer});}
-
-socket.on('incoming-call',data=>{if(currentCall){socket.emit('call-rejected',{to:data.from});return;}pendingIncomingCall=data;incomingName.textContent=data.fromName;incomingType.textContent=data.video?'Te está haciendo una videollamada':'Te está haciendo una llamada de voz';acceptCall.textContent=data.video?'✅ Aceptar vídeo':'✅ Aceptar';incomingCall.classList.add('active');});
-acceptCall.onclick=async()=>{if(!pendingIncomingCall)return;const data=pendingIncomingCall;pendingIncomingCall=null;incomingCall.classList.remove('active');currentCall={targetId:data.from,video:data.video,caller:false};remoteLabel.textContent=data.fromName;callStatus.textContent=`Conectando con ${data.fromName}...`;mostrarLlamada();if(!await obtenerMedia(data.video)){socket.emit('call-rejected',{to:data.from});terminarLlamada(false);return;}peerConnection=createPeerConnection(data.from);localStream.getTracks().forEach(t=>peerConnection.addTrack(t,localStream));await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));for(const c of pendingCandidates){try{await peerConnection.addIceCandidate(c);}catch(e){console.error(e);}}pendingCandidates=[];const answer=await peerConnection.createAnswer();await peerConnection.setLocalDescription(answer);socket.emit('call-signal',{to:data.from,type:'answer',answer});};
-rejectCall.onclick=()=>{if(pendingIncomingCall)socket.emit('call-rejected',{to:pendingIncomingCall.from});pendingIncomingCall=null;incomingCall.classList.remove('active');};
-socket.on('call-signal',async data=>{if(!currentCall)return;if(data.type==='answer'&&peerConnection){await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));for(const c of pendingCandidates){try{await peerConnection.addIceCandidate(c);}catch(e){console.error(e);}}pendingCandidates=[];}if(data.type==='candidate'){const c=new RTCIceCandidate(data.candidate);if(peerConnection&&peerConnection.remoteDescription){try{await peerConnection.addIceCandidate(c);}catch(e){console.error(e);}}else pendingCandidates.push(c);}});
-socket.on('call-rejected',()=>{alert('La llamada ha sido rechazada.');terminarLlamada(false);});socket.on('call-ended',()=>terminarLlamada(false));
-hangupBtn.onclick=()=>terminarLlamada(true);
-function terminarLlamada(avisar=true){if(avisar&&currentCall)socket.emit('call-ended',{to:currentCall.targetId});if(peerConnection){peerConnection.close();peerConnection=null;}if(localStream){localStream.getTracks().forEach(t=>t.stop());localStream=null;}remoteStream=null;localVideo.srcObject=null;remoteVideo.srcObject=null;currentCall=null;pendingCandidates=[];callScreen.classList.remove('active');incomingCall.classList.remove('active');callStatus.textContent='Conectando...';muteBtn.textContent='🎤';cameraBtn.textContent='📷';muteBtn.classList.remove('off');cameraBtn.classList.remove('off');}
-muteBtn.onclick=()=>{if(!localStream)return;localStream.getAudioTracks().forEach(t=>t.enabled=!t.enabled);const off=localStream.getAudioTracks()[0]&&!localStream.getAudioTracks()[0].enabled;muteBtn.textContent=off?'🔇':'🎤';muteBtn.classList.toggle('off',off);};
-cameraBtn.onclick=()=>{if(!localStream)return;localStream.getVideoTracks().forEach(t=>t.enabled=!t.enabled);const off=localStream.getVideoTracks()[0]&&!localStream.getVideoTracks()[0].enabled;cameraBtn.textContent=off?'🚫':'📷';cameraBtn.classList.toggle('off',off);};
-function unicoOtro(){const x=onlineUsers.filter(u=>u.id!==socket.id);if(x.length!==1){alert('Selecciona a la persona desde la lista de usuarios.');return null;}return x[0];}
-document.getElementById('quickVoiceCall').onclick=()=>{const u=unicoOtro();if(u)iniciarLlamada(u.id,false);};
-document.getElementById('quickVideoCall').onclick=()=>{const u=unicoOtro();if(u)iniciarLlamada(u.id,true);};
-
-let hasJoined = false;
-
-function joinWithSavedName(){
-    if(!myName || hasJoined) return;
-
-    hasJoined = true;
-    login.style.display='none';
-    socket.emit('join', myName);
-    input.focus();
-}
-
-socket.on('connect',()=>{
-    status.textContent='En línea';
-    joinWithSavedName();
 });
 
 socket.on('disconnect',()=>{
     status.textContent='Desconectado';
-    hasJoined = false;
+    hasJoined=false;
     terminarLlamada(false);
 });
-
-if(myName && socket.connected){
-    joinWithSavedName();
-}
 
 renderPosts();
 </script>
