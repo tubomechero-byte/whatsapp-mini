@@ -1,4 +1,4 @@
-const express = require("express");
+                        const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 const fs = require("fs");
@@ -21,6 +21,7 @@ const PUSH_FILE = path.join(DATA_DIR, "push-subscriptions.json");
 const USERS_FILE = path.join(DATA_DIR, "users.json");
 const CALLS_FILE = path.join(DATA_DIR, "pending-calls.json");
 const VAPID_FILE = path.join(DATA_DIR, "vapid.json");
+const PRIVATE_MESSAGES_FILE = path.join(DATA_DIR, "private-messages.json");
 
 fs.mkdirSync(DATA_DIR, { recursive: true });
 
@@ -35,6 +36,7 @@ ensureFile(POSTS_FILE);
 ensureFile(PUSH_FILE);
 ensureFile(USERS_FILE);
 ensureFile(CALLS_FILE);
+ensureFile(PRIVATE_MESSAGES_FILE);
 
 let vapidKeys;
 
@@ -481,10 +483,6 @@ io.on(
                     msg
                 );
 
-                /*
-                Push solo a usuarios desconectados.
-                */
-
                 const connected =
                     new Set(
                         [...users.values()]
@@ -518,6 +516,41 @@ io.on(
                         );
                     }
                 }
+            }
+        );
+        
+        /*
+        ==============================
+        MENSAJES PRIVADOS
+        ==============================
+        */
+
+        socket.on(
+            "private message",
+            data => {
+                const user = users.get(socket.id);
+                if (!user || !data.to || !data.text) return;
+                
+                const text = String(data.text).trim().slice(0, 1000);
+                if (!text) return;
+
+                const msg = {
+                    id: Date.now() + Math.random(),
+                    from: user.name,
+                    to: data.to,
+                    text: text,
+                    time: new Date().toISOString()
+                };
+
+                const pMessages = loadJSON(PRIVATE_MESSAGES_FILE);
+                pMessages.push(msg);
+                saveJSON(PRIVATE_MESSAGES_FILE, pMessages.slice(-5000));
+
+                const targetSocket = [...users.entries()].find(([, u]) => u.name === data.to);
+                if (targetSocket) {
+                    io.to(targetSocket[0]).emit("private message", msg);
+                }
+                socket.emit("private message", msg);
             }
         );
 
@@ -618,11 +651,6 @@ io.on(
                     return;
                 }
 
-                /*
-                Si está online, redirigimos a la
-                llamada normal.
-                */
-
                 const targetSocket =
                     [...users.entries()]
                         .find(
@@ -663,12 +691,6 @@ io.on(
                     }
                 }
 
-                /*
-                IMPORTANTE:
-                Solo tiene sentido guardar una oferta
-                WebRTC si quien llama sigue conectado.
-                */
-
                 if (!data.offer) {
 
                     socket.emit(
@@ -683,11 +705,6 @@ io.on(
                     loadJSON(
                         CALLS_FILE
                     );
-
-                /*
-                Solo una llamada pendiente por
-                destinatario.
-                */
 
                 const cleaned =
                     pending.filter(
