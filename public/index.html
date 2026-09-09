@@ -47,7 +47,7 @@ const login=document.getElementById('login'),nameInput=document.getElementById('
 const messages=document.getElementById('messages'),form=document.getElementById('form'),input=document.getElementById('input'),people=document.getElementById('people'),status=document.getElementById('status'),searchPeople=document.getElementById('searchPeople');
 
 function time(iso){return new Date(iso).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}
-function addMessage(m){const div=document.createElement('div');div.className='msg'+(m.user===myName?' me':'');div.innerHTML=`<div class="user">${escapeHtml(m.user)}</div><div>${escapeHtml(m.text)}</div><div class="time">${time(m.time)}</div>`;messages.appendChild(div);messages.scrollTop=messages.scrollHeight;}
+function addMessage(m){const div=document.createElement('div');div.className='msg'+(m.user===myName?' me':'');div.dataset.messageId=m.id;const borrar=m.user===myName?`<button onclick="borrarMensaje('${m.id}')" style="float:right;border:0;background:none;cursor:pointer;margin-left:8px;font-size:14px" title="Borrar mensaje">🗑️</button>`:'';div.innerHTML=`${borrar}<div class="user">${escapeHtml(m.user)}</div><div>${escapeHtml(m.text)}</div><div class="time">${time(m.time)}</div>`;messages.appendChild(div);messages.scrollTop=messages.scrollHeight;}
 
 function enterChat(){const n=nameInput.value.trim();if(!n)return;myName=n.slice(0,24);localStorage.setItem('miniName',myName);login.style.display='none';socket.emit('join',myName);input.focus();}
 enter.onclick=enterChat;
@@ -55,6 +55,8 @@ nameInput.addEventListener('keydown',e=>{if(e.key==='Enter')enterChat();});
 
 socket.on('history',list=>{messages.innerHTML='';list.forEach(addMessage);});
 socket.on('chat message',addMessage);
+socket.on('message deleted',id=>{const el=messages.querySelector(`[data-message-id="${id}"]`);if(el)el.remove();});
+function borrarMensaje(id){socket.emit('delete message',id);}
 socket.on('system',text=>{const div=document.createElement('div');div.className='system';div.textContent=text;messages.appendChild(div);messages.scrollTop=messages.scrollHeight;});
 
 function renderUsers(){const q=searchPeople.value.trim().toLowerCase();people.innerHTML='';const users=onlineUsers.filter(u=>u.name.toLowerCase().includes(q));if(!users.length){people.textContent='Nadie conectado';return;}users.forEach(u=>{if(u.id===socket.id)return;const div=document.createElement('div');div.className='person';div.innerHTML=`<div class="personInfo"><div class="personName">🟢 ${escapeHtml(u.name)}</div><div class="personOnline">En línea</div></div><div class="callButtons"><button class="voiceCallBtn" title="Llamar">📞</button><button class="videoCallBtn" title="Videollamada">📹</button></div>`;div.querySelector('.voiceCallBtn').onclick=()=>iniciarLlamada(u.id,false);div.querySelector('.videoCallBtn').onclick=()=>iniciarLlamada(u.id,true);people.appendChild(div);});}
